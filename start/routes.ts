@@ -26,10 +26,10 @@ router
   .group(() => {
     router.get('/', [HomeController, 'render'])
 
-    router.get('/:slug', [LinksController, 'resolve'])
-
     router.post('/links', [LinksController, 'store'])
 
     router.post('/domains', [DomainsController, 'store'])
   })
   .use(middleware.auth())
+
+router.get('/:slug', [LinksController, 'resolve'])
