@@ -1,95 +1,205 @@
 <script setup lang="ts">
 import type Link from '#models/link'
-import { reactive } from 'vue'
-import { router } from '@inertiajs/vue3'
+import type { DropdownMenuItem, BreadcrumbItem, TableColumn } from '@nuxt/ui'
+import { ref } from 'vue'
+import { h, resolveComponent } from 'vue'
+import LinkAddModal from '~/components/LinkAddModal.vue'
+import LinkEditModal from '~/components/LinkEditModal.vue'
 
 defineProps<{
   links: Link[]
 }>()
 
-const form = reactive({
-  name: '',
-  slugCustom: '',
-  targetUrl: '',
-  category: '',
-  tags: '',
-})
+const overlay = useOverlay()
+const createLink = overlay.create(LinkAddModal)
+const editLink = overlay.create(LinkEditModal)
 
-const customDomainForm = reactive({
-  name: '',
-  description: '',
-  label: '',
-})
+const UButton = resolveComponent('UButton')
+const UBadge = resolveComponent('UBadge')
+const UDropdownMenu = resolveComponent('UDropdownMenu')
 
-function submit() {
-  router.post('/links', form)
-}
+const items = ref<DropdownMenuItem[]>([
+  {
+    label: 'Profile',
+    icon: 'i-lucide-user',
+  },
+  {
+    label: 'Billing',
+    icon: 'i-lucide-credit-card',
+  },
+  {
+    label: 'Settings',
+    icon: 'i-lucide-cog',
+  },
+])
+const breadcrumbItems = ref<BreadcrumbItem[]>([
+  {
+    label: 'Dashboard',
+  },
+  {
+    label: 'Mes liens',
+    to: '/components',
+  },
+])
+const columns: TableColumn<Link>[] = [
+  {
+    accessorKey: 'name',
+    header: 'Nom',
+  },
+  {
+    accessorKey: 'slugAuto',
+    header: 'Lien court',
+    cell: ({ row }) => {
+      const link = row.original as Link
+      const shortUrl = link.slugCustom ? link.slugCustom : link.slugAuto
+      const domain = link.domain ? link.domain.label : window.location.hostname
+      return h(UButton, {
+        color: 'neutral',
+        variant: 'soft',
+        size: 'sm',
+        label: `${domain}/${shortUrl}`,
+        icon: 'lucide:copy',
+      })
+    },
+  },
+  {
+    accessorKey: 'targetUrl',
+    header: 'Destination',
+    cell: ({ row }) => {
+      const link = row.original as Link
+      return h(UButton, {
+        color: 'neutral',
+        variant: 'soft',
+        size: 'sm',
+        label: link.targetUrl,
+        icon: 'lucide:external-link',
+        to: link.targetUrl,
+        target: '_blank',
+        class: 'text-wrap',
+      })
+    },
+  },
+  {
+    accessorKey: 'category',
+    header: 'Catégorie',
+    cell: ({ row }) => {
+      const link = row.original as Link
+      return h('span', { class: 'text-muted' }, link.category ? link.category : 'Aucune')
+    },
+  },
+  {
+    accessorKey: 'tags',
+    header: 'Tags',
+    cell: ({ row }) => {
+      const link = row.original as Link
+      return h(
+        'div',
+        { class: 'flex flex-wrap gap-2' },
+        link.tags?.map((tag) =>
+          h(
+            UBadge,
+            {
+              color: 'neutral',
+              variant: 'subtle',
+              class: 'text-xs rounded-full',
+            },
+            () => h('span', tag)
+          )
+        )
+      )
+    },
+  },
+  {
+    header: 'QR Code',
+    cell: ({ row }) => {
+      const link = row.original as Link
+      return h(UButton, {
+        color: 'neutral',
+        variant: 'soft',
+        size: 'sm',
+        icon: 'lucide:qr-code',
+      })
+    },
+  },
+  {
+    id: 'actions',
+    cell: ({ row }) => {
+      return h(
+        'div',
+        { class: 'text-right' },
+        h(
+          UDropdownMenu,
+          {
+            'content': {
+              align: 'end',
+            },
+            'items': getRowItems(row),
+            'aria-label': 'Actions dropdown',
+          },
+          () =>
+            h(UButton, {
+              'icon': 'i-lucide-ellipsis-vertical',
+              'color': 'neutral',
+              'variant': 'ghost',
+              'class': 'ml-auto',
+              'aria-label': 'Actions dropdown',
+            })
+        )
+      )
+    },
+  },
+]
 
-function submitCustomDomain() {
-  router.post('/domains', customDomainForm)
-}
-
-function getLinkName(link: Link): string {
-  if (link.name) {
-    return link.name
-  } else if (link.slugCustom) {
-    return link.slugCustom
-  } else {
-    return link.slugAuto
-  }
+function getRowItems(row: any) {
+  const link = row.original as Link
+  return [
+    {
+      label: 'Modifier',
+      icon: 'lucide:edit',
+      onClick: () => {
+        editLink.open({ link })
+      },
+    },
+    {
+      label: 'Supprimer',
+      icon: 'lucide:trash',
+      color: 'error',
+    },
+  ]
 }
 </script>
 
 <template>
-  <div class="container mx-auto px-4 py-8">
-    <h1 class="text-2xl font-bold mb-6">Home Page</h1>
-    <form @submit.prevent="submit">
-      <div>
-        <label>Slug Custom</label>
-        <input v-model="form.slugCustom" type="text" />
+  <div>
+    <div class="h-16 w-full p-4 border-b border-default flex items-center gap-2">
+      <UButton color="neutral" variant="ghost" icon="lucide:panel-left" />
+      <UBreadcrumb :items="breadcrumbItems" class="" />
+    </div>
+
+    <div class="flex flex-col gap-8 p-8">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-semibold">Mes liens</h1>
+          <p class="text-muted">Gérez vos liens raccourcis et suivez leurs performances</p>
+        </div>
+        <UButton icon="lucide:plus" label="Creer un lien" size="lg" @click="createLink.open()" />
       </div>
 
-      <div>
-        <label>Nom</label>
-        <input v-model="form.name" type="text" />
+      <div class="flex flex-col gap-4">
+        <div class="flex items-center justify-between">
+          <UInput
+            type="search"
+            icon="lucide:search"
+            placeholder="Rechercher un lien"
+            class="w-sm"
+          />
+          <div class="flex gap-2">
+            <UBadge label="Tous" color="neutral" variant="soft" class="rounded-full" size="lg" />
+          </div>
+        </div>
+
+        <UTable :data="links" :columns="columns" class="flex-1 border border-default rounded-lg" />
       </div>
-
-      <div>
-        <label>Target URL</label>
-        <input v-model="form.targetUrl" type="url" required />
-      </div>
-
-      <button type="submit" class="p-2 bg-muted">Créer le lien</button>
-    </form>
-
-    <form @submit.prevent="submitCustomDomain" class="mt-8">
-      <div>
-        <label>Nom</label>
-        <input v-model="customDomainForm.name" type="text" />
-      </div>
-
-      <div>
-        <label>Description</label>
-        <input v-model="customDomainForm.description" type="text" />
-      </div>
-
-      <div>
-        <label>Label</label>
-        <input v-model="customDomainForm.label" type="text" />
-      </div>
-
-      <button type="submit" class="p-2 bg-muted">Créer le domaine personnalisé</button>
-    </form>
-
-    <ul v-if="links.length > 0" class="mt-4">
-      <li v-for="link in links" :key="link.id" class="mb-2 flex items-center">
-        <a :href="link.targetUrl" class="text-blue-500 hover:underline">{{ getLinkName(link) }}</a>
-        <span class="ml-2 text-gray-500">({{ link.slugAuto }})</span>
-        <span v-if="link.slugCustom" class="ml-2">{{ link.slugCustom }}</span>
-        <span v-if="link.category" class="ml-2 text-yellow-500">Category: {{ link.category }}</span>
-        <span v-if="link.tags" class="ml-2 text-purple-500">Tags: {{ link.tags.join(', ') }}</span>
-      </li>
-    </ul>
-    <p v-else class="text-gray-500 mt-4">No links available.</p>
+    </div>
   </div>
 </template>

@@ -10,7 +10,17 @@ export default defineConfig({
     inertia({ ssr: { enabled: false } }),
     vue(),
     adonisjs({ entrypoints: ['inertia/app/app.ts'], reload: ['resources/views/**/*.edge'] }),
-    ui({ inertia: true, colorMode: false }),
+    ui({
+      inertia: true,
+      colorMode: false,
+      ui: {
+        button: {
+          slots: {
+            base: 'cursor-pointer',
+          },
+        },
+      },
+    }),
   ],
 
   /**

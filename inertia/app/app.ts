@@ -1,25 +1,25 @@
-/// <reference path="../../adonisrc.ts" />
-/// <reference path="../../config/inertia.ts" />
-
+import { createApp, DefineComponent, h } from 'vue'
 import '../css/app.css'
-import { createApp, h } from 'vue'
-import type { DefineComponent } from 'vue'
 import { createInertiaApp } from '@inertiajs/vue3'
 import { resolvePageComponent } from '@adonisjs/inertia/helpers'
+import Default from '~/layouts/default.vue'
 import ui from '@nuxt/ui/vue-plugin'
 
-const appName = import.meta.env.VITE_APP_NAME || 'AdonisJS'
-
 createInertiaApp({
-  progress: { color: '#5468FF' },
+  progress: { color: '#ff6467' },
 
-  title: (title) => `${title} - ${appName}`,
+  title: () => 'Shorty',
 
   resolve: (name) => {
     return resolvePageComponent(
       `../pages/${name}.vue`,
       import.meta.glob<DefineComponent>('../pages/**/*.vue')
-    )
+    ).then((page) => {
+      if (!page.default.layout) {
+        page.default.layout = Default
+      }
+      return page
+    })
   },
 
   setup({ el, App, props, plugin }) {
