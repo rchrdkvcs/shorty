@@ -2,18 +2,16 @@
 import { reactive } from 'vue'
 import { router } from '@inertiajs/vue3'
 
+const emit = defineEmits(['close'])
+
+const domain = window.location.hostname
+
 const form = reactive({
   name: '',
   targetUrl: '',
   domain: '',
   slugCustom: '',
 })
-
-const domains = [
-  { label: 'MonLien.fr', value: 'monlien.fr' },
-  { label: 'LienCourt.com', value: 'liencourt.com' },
-  { label: 'Exemple.io', value: 'exemple.io' },
-]
 
 const handleSubmit = () => {
   router.post('/links', form, {
@@ -22,6 +20,8 @@ const handleSubmit = () => {
       form.targetUrl = ''
       form.domain = ''
       form.slugCustom = ''
+
+      emit('close')
     },
   })
 }
@@ -54,25 +54,9 @@ const handleSubmit = () => {
           />
         </UFormField>
 
-        <UFormField label="Domaine" hint="Optionnel">
-          <USelect
-            v-model="form.domain"
-            :items="domains"
-            placeholder="Sélectionnez un domaine"
-            class="w-full"
-            icon="lucide:globe"
-            size="lg"
-          />
-        </UFormField>
-
         <UFormField label="Slug personnalisé" hint="Optionnel">
           <UButtonGroup class="w-full">
-            <UBadge
-              color="neutral"
-              variant="outline"
-              size="lg"
-              :label="(form.domain ? form.domain : 'shorty.io') + '/'"
-            />
+            <UBadge color="neutral" variant="outline" size="lg" :label="domain + '/'" />
 
             <UInput
               color="neutral"
@@ -92,5 +76,3 @@ const handleSubmit = () => {
     </template>
   </UModal>
 </template>
-
-<style scoped></style>

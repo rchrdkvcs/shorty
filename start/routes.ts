@@ -27,6 +27,7 @@ router
     router.get('/', [HomeController, 'render'])
 
     router.post('/links', [LinksController, 'store'])
+    router.patch('/links/:id', [LinksController, 'update'])
 
     router.post('/domains', [DomainsController, 'store'])
   })

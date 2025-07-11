@@ -1,9 +1,13 @@
 <script setup lang="ts">
-import { reactive, computed } from 'vue'
+import { reactive } from 'vue'
 import { router } from '@inertiajs/vue3'
 import type Link from '#models/link'
 
 const props = defineProps<{ link: Link }>()
+
+const emit = defineEmits(['close'])
+
+const domain = window.location.hostname
 
 const form = reactive({
   id: props.link.id,
@@ -13,18 +17,12 @@ const form = reactive({
   slugCustom: props.link.slugCustom || props.link.slugAuto,
 })
 
-const domains = [
-  { label: 'MonLien.fr', value: 'monlien.fr' },
-  { label: 'LienCourt.com', value: 'liencourt.com' },
-  { label: 'Exemple.io', value: 'exemple.io' },
-]
-
-const displayDomain = computed(() => {
-  return form.domain || (typeof window !== 'undefined' ? window.location.hostname : '')
-})
-
 const handleSubmit = () => {
-  router.patch('/links', form)
+  router.patch(`/links/${props.link.id}`, form, {
+    onSuccess: () => {
+      emit('close')
+    },
+  })
 }
 </script>
 
@@ -52,20 +50,9 @@ const handleSubmit = () => {
           />
         </UFormField>
 
-        <UFormField label="Domaine" hint="Optionnel">
-          <USelect
-            v-model="form.domain"
-            :items="domains"
-            placeholder="Sélectionnez un domaine"
-            class="w-full"
-            icon="lucide:globe"
-            size="lg"
-          />
-        </UFormField>
-
         <UFormField label="Slug personnalisé" hint="Optionnel">
           <UButtonGroup class="w-full">
-            <UBadge color="neutral" variant="outline" size="lg" :label="displayDomain + '/'" />
+            <UBadge color="neutral" variant="outline" size="lg" :label="domain + '/'" />
 
             <UInput
               color="neutral"
