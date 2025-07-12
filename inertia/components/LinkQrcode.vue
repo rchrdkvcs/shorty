@@ -39,7 +39,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <UModal>
+  <UModal class="z-50">
     <template #header>
       <div class="flex items-center justify-between">
         <h3 class="text-lg font-semibold">QR Code</h3>

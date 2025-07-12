@@ -10,11 +10,13 @@
 import router from '@adonisjs/core/services/router'
 import { middleware } from '#start/kernel'
 
-const HomeController = () => import('#controllers/home_controller')
-const LinksController = () => import('#controllers/links_controller')
-const DomainsController = () => import('#controllers/domains_controller')
-const AuthRegistersController = () => import('#controllers/auth_registers_controller')
-const AuthLoginsController = () => import('#controllers/auth_logins_controller')
+const StoreLinkController = () => import('#controllers/links/store_link_controller')
+const IndexLinkController = () => import('#controllers/links/index_link_controller')
+const UpdateLinkController = () => import('#controllers/links/update_link_controller')
+const StoreDomainController = () => import('#controllers/domains/store_domain_controller')
+const ResolveLinkController = () => import('#controllers/links/resolve_link_controller')
+const AuthLoginsController = () => import('#controllers/auth/auth_logins_controller')
+const AuthRegistersController = () => import('#controllers/auth/auth_registers_controller')
 
 router.get('/login', [AuthLoginsController, 'render'])
 router.post('/login', [AuthLoginsController, 'execute'])
@@ -22,15 +24,19 @@ router.post('/login', [AuthLoginsController, 'execute'])
 router.get('/register', [AuthRegistersController, 'render'])
 router.post('/register', [AuthRegistersController, 'execute'])
 
+router.get('/', ({ response }) => {
+  return response.redirect('/dashboard/links')
+})
+
 router
   .group(() => {
-    router.get('/', [HomeController, 'render'])
+    router.get('/dashboard/links', [IndexLinkController, 'render'])
 
-    router.post('/links', [LinksController, 'store'])
-    router.patch('/links/:id', [LinksController, 'update'])
+    router.post('/links', [StoreLinkController, 'execute'])
+    router.patch('/links/:id', [UpdateLinkController, 'execute'])
 
-    router.post('/domains', [DomainsController, 'store'])
+    router.post('/domains', [StoreDomainController, 'store'])
   })
   .use(middleware.auth())
 
-router.get('/:slug', [LinksController, 'resolve'])
+router.get('/:slug', [ResolveLinkController, 'execute'])

@@ -2,7 +2,7 @@ import type { HttpContext } from '@adonisjs/core/http'
 import vine from '@vinejs/vine'
 import Domain from '#models/domain'
 
-export default class DomainsController {
+export default class StoreDomainController {
   static validator = vine.compile(
     vine.object({
       name: vine.string(),
@@ -11,7 +11,7 @@ export default class DomainsController {
   )
 
   async store({ request, response }: HttpContext) {
-    const data = await request.validateUsing(DomainsController.validator)
+    const data = await request.validateUsing(StoreDomainController.validator)
 
     const domain = await Domain.create(data)
 

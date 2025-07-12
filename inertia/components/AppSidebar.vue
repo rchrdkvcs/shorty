@@ -2,6 +2,8 @@
 import { ref } from 'vue'
 import type { NavigationMenuItem } from '@nuxt/ui'
 import type { DropdownMenuItem } from '@nuxt/ui'
+import { usePage } from '@inertiajs/vue3'
+import type User from '#models/user'
 
 const navigationItems = ref<NavigationMenuItem[]>([
   [
@@ -13,22 +15,12 @@ const navigationItems = ref<NavigationMenuItem[]>([
     {
       label: 'Liens',
       icon: 'lucide:link',
-      to: '/links',
-    },
-    {
-      label: 'Analytics',
-      icon: 'lucide:bar-chart-2',
-      to: '/analytics',
+      to: '/dashboard/links',
     },
     {
       label: 'QR Codes',
       icon: 'lucide:qr-code',
-      to: '/qr-codes',
-    },
-    {
-      label: 'Equipe',
-      icon: 'lucide:users',
-      to: '/team',
+      to: '/dashboard/qr-codes',
     },
     {
       label: 'Paramètres',
@@ -64,6 +56,8 @@ const profileItems = ref<DropdownMenuItem[]>([
     color: 'error',
   },
 ])
+
+const user = usePage().props.user as User
 </script>
 
 <template>
@@ -112,8 +106,8 @@ const profileItems = ref<DropdownMenuItem[]>([
               <UIcon name="lucide:user" class="size-5" />
             </span>
             <p class="flex flex-col justify-center items-start">
-              <span class="font-semibold">John Doe</span>
-              <span class="text-xs text-muted">john@doe.mail</span>
+              <span class="font-semibold capitalize">{{ user.username }}</span>
+              <span class="text-xs text-muted">{{ user.email }}</span>
             </p>
           </UButton>
         </UDropdownMenu>
