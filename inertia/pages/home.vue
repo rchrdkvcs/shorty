@@ -5,6 +5,8 @@ import { ref } from 'vue'
 import { h, resolveComponent } from 'vue'
 import LinkAddModal from '~/components/LinkAddModal.vue'
 import LinkEditModal from '~/components/LinkEditModal.vue'
+import { useQRCode } from '~/composables/use_qrcode'
+import LinkQrcode from '~/components/LinkQrcode.vue'
 
 defineProps<{
   links: Link[]
@@ -13,10 +15,13 @@ defineProps<{
 const overlay = useOverlay()
 const createLink = overlay.create(LinkAddModal)
 const editLink = overlay.create(LinkEditModal)
+const qrCode = overlay.create(LinkQrcode)
 
 const UButton = resolveComponent('UButton')
 const UBadge = resolveComponent('UBadge')
 const UDropdownMenu = resolveComponent('UDropdownMenu')
+
+const { generateQRCode, downloadQRCode } = useQRCode()
 
 const items = ref<DropdownMenuItem[]>([
   {
@@ -113,11 +118,20 @@ const columns: TableColumn<Link>[] = [
     header: 'QR Code',
     cell: ({ row }) => {
       const link = row.original as Link
+      const shortUrl = link.slugCustom ? link.slugCustom : link.slugAuto
+      const domain = link.domain ? link.domain.label : window.location.hostname
+      const fullUrl = `https://${domain}/${shortUrl}`
+
       return h(UButton, {
         color: 'neutral',
         variant: 'soft',
         size: 'sm',
         icon: 'lucide:qr-code',
+        onClick: () =>
+          qrCode.open({
+            url: fullUrl,
+            filename: `${shortUrl}.png`,
+          }),
       })
     },
   },
