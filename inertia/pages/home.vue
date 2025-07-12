@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import type Link from '#models/link'
-import type { DropdownMenuItem, BreadcrumbItem, TableColumn } from '@nuxt/ui'
+import type { BreadcrumbItem, TableColumn } from '@nuxt/ui'
 import { ref } from 'vue'
 import { h, resolveComponent } from 'vue'
+import { useClipboard } from '@vueuse/core'
 import LinkAddModal from '~/components/LinkAddModal.vue'
 import LinkEditModal from '~/components/LinkEditModal.vue'
-import { useQRCode } from '~/composables/use_qrcode'
 import LinkQrcode from '~/components/LinkQrcode.vue'
 
 defineProps<{
@@ -17,26 +17,13 @@ const createLink = overlay.create(LinkAddModal)
 const editLink = overlay.create(LinkEditModal)
 const qrCode = overlay.create(LinkQrcode)
 
+const { copy } = useClipboard()
+const copiedStates = ref<Record<string, boolean>>({})
+
 const UButton = resolveComponent('UButton')
 const UBadge = resolveComponent('UBadge')
 const UDropdownMenu = resolveComponent('UDropdownMenu')
 
-const { generateQRCode, downloadQRCode } = useQRCode()
-
-const items = ref<DropdownMenuItem[]>([
-  {
-    label: 'Profile',
-    icon: 'i-lucide-user',
-  },
-  {
-    label: 'Billing',
-    icon: 'i-lucide-credit-card',
-  },
-  {
-    label: 'Settings',
-    icon: 'i-lucide-cog',
-  },
-])
 const breadcrumbItems = ref<BreadcrumbItem[]>([
   {
     label: 'Dashboard',
@@ -46,6 +33,7 @@ const breadcrumbItems = ref<BreadcrumbItem[]>([
     to: '/components',
   },
 ])
+
 const columns: TableColumn<Link>[] = [
   {
     accessorKey: 'name',
@@ -58,12 +46,21 @@ const columns: TableColumn<Link>[] = [
       const link = row.original as Link
       const shortUrl = link.slugCustom ? link.slugCustom : link.slugAuto
       const domain = link.domain ? link.domain.label : window.location.hostname
+      const linkKey = `${domain}/${shortUrl}`
+
       return h(UButton, {
-        color: 'neutral',
+        color: copiedStates.value[linkKey] ? 'success' : 'neutral',
         variant: 'soft',
         size: 'sm',
-        label: `${domain}/${shortUrl}`,
-        icon: 'lucide:copy',
+        label: linkKey,
+        icon: copiedStates.value[linkKey] ? 'lucide:check' : 'lucide:copy',
+        onClick: async () => {
+          await copy(`https://${linkKey}`)
+          copiedStates.value[linkKey] = true
+          setTimeout(() => {
+            copiedStates.value[linkKey] = false
+          }, 2000)
+        },
       })
     },
   },
