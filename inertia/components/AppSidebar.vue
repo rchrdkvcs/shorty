@@ -18,6 +18,11 @@ const navigationItems = ref<NavigationMenuItem[]>([
       to: '/dashboard/links',
     },
     {
+      label: 'Organisations',
+      icon: 'lucide:building',
+      to: '/dashboard/organizations',
+    },
+    {
       label: 'QR Codes',
       icon: 'lucide:qr-code',
       to: '/dashboard/qr-codes',
@@ -31,12 +36,16 @@ const navigationItems = ref<NavigationMenuItem[]>([
 ])
 const organizationItems = ref<DropdownMenuItem[]>([
   {
-    label: 'Organisation 1',
+    label: 'Gérer les organisations',
     icon: 'lucide:building-2',
+    to: '/dashboard/organizations',
   },
   {
     label: 'Ajouter une organisation',
     icon: 'lucide:plus',
+    click: () => {
+      // TODO: Ouvrir modal de création d'organisation
+    },
   },
 ])
 const profileItems = ref<DropdownMenuItem[]>([

@@ -6,8 +6,8 @@
     "module": "ESNext",
     "jsxImportSource": "vue",
     "paths": {
-      "~/*": ["./*"],
-    },
+      "~/*": ["./*"]
+    }
   },
-  "include": ["./**/*.ts", "./**/*.vue", "../auto-imports.d.ts", "../components.d.ts"],
+  "include": ["./**/*.ts", "./**/*.vue", "../auto-imports.d.ts", "../components.d.ts"]
 }

@@ -1,6 +1,9 @@
 import { DateTime } from 'luxon'
-import { BaseModel, beforeCreate, column } from '@adonisjs/lucid/orm'
+import { BaseModel, beforeCreate, column, belongsTo, hasMany } from '@adonisjs/lucid/orm'
+import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
 import { ulid } from 'ulid'
+import Link from '#models/link'
+import Organization from '#models/organization'
 
 export default class Domain extends BaseModel {
   @column({ isPrimary: true })
@@ -22,6 +25,15 @@ export default class Domain extends BaseModel {
 
   @column()
   declare isActive: boolean
+
+  @column()
+  declare organizationId: string
+
+  @belongsTo(() => Organization)
+  declare organization: BelongsTo<typeof Organization>
+
+  @hasMany(() => Link)
+  declare links: HasMany<typeof Link>
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime

@@ -17,6 +17,14 @@ const StoreDomainController = () => import('#controllers/domains/store_domain_co
 const ResolveLinkController = () => import('#controllers/links/resolve_link_controller')
 const AuthLoginsController = () => import('#controllers/auth/auth_logins_controller')
 const AuthRegistersController = () => import('#controllers/auth/auth_registers_controller')
+const IndexOrganizationController = () =>
+  import('#controllers/organizations/index_organization_controller')
+const StoreOrganizationController = () =>
+  import('#controllers/organizations/store_organization_controller')
+const UpdateOrganizationController = () =>
+  import('#controllers/organizations/update_organization_controller')
+const DeleteOrganizationController = () =>
+  import('#controllers/organizations/delete_organization_controller')
 
 router.get('/login', [AuthLoginsController, 'render'])
 router.post('/login', [AuthLoginsController, 'execute'])
@@ -31,11 +39,16 @@ router.get('/', ({ response }) => {
 router
   .group(() => {
     router.get('/dashboard/links', [IndexLinkController, 'render'])
+    router.get('/dashboard/organizations', [IndexOrganizationController, 'render'])
 
     router.post('/links', [StoreLinkController, 'execute'])
     router.patch('/links/:id', [UpdateLinkController, 'execute'])
 
     router.post('/domains', [StoreDomainController, 'store'])
+
+    router.post('/organizations', [StoreOrganizationController, 'execute'])
+    router.patch('/organizations/:id', [UpdateOrganizationController, 'execute'])
+    router.delete('/organizations/:id', [DeleteOrganizationController, 'execute'])
   })
   .use(middleware.auth())
 

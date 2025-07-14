@@ -3,13 +3,15 @@ import type Link from '#models/link'
 import type { BreadcrumbItem, TableColumn } from '@nuxt/ui'
 import { ref } from 'vue'
 import { h, resolveComponent } from 'vue'
-import { useClipboard } from '@vueuse/core'
+import { useLink } from '~/composables/use_link'
 import LinkAddModal from '~/components/LinkAddModal.vue'
 import LinkEditModal from '~/components/LinkEditModal.vue'
 import LinkQrcode from '~/components/LinkQrcode.vue'
 
 defineProps<{
   links: Link[]
+  availableDomains: any[]
+  organizations: any[]
 }>()
 
 const overlay = useOverlay()
@@ -17,8 +19,7 @@ const createLink = overlay.create(LinkAddModal)
 const editLink = overlay.create(LinkEditModal)
 const qrCode = overlay.create(LinkQrcode)
 
-const { copy } = useClipboard()
-const copiedStates = ref<Record<string, boolean>>({})
+const { copyToClipboard, getCopyButtonProps, getQRCodeData, getLinkCategory } = useLink()
 
 const UButton = resolveComponent('UButton')
 const UBadge = resolveComponent('UBadge')
@@ -44,23 +45,11 @@ const columns: TableColumn<Link>[] = [
     header: 'Lien court',
     cell: ({ row }) => {
       const link = row.original as Link
-      const shortUrl = link.slugCustom ? link.slugCustom : link.slugAuto
-      const domain = link.domain ? link.domain.label : window.location.hostname
-      const linkKey = `${domain}/${shortUrl}`
+      const buttonProps = getCopyButtonProps(link)
 
       return h(UButton, {
-        color: copiedStates.value[linkKey] ? 'success' : 'neutral',
-        variant: 'soft',
-        size: 'sm',
-        label: linkKey,
-        icon: copiedStates.value[linkKey] ? 'lucide:check' : 'lucide:copy',
-        onClick: async () => {
-          await copy(`https://${linkKey}`)
-          copiedStates.value[linkKey] = true
-          setTimeout(() => {
-            copiedStates.value[linkKey] = false
-          }, 2000)
-        },
+        ...buttonProps,
+        onClick: () => copyToClipboard(link),
       })
     },
   },
@@ -86,7 +75,7 @@ const columns: TableColumn<Link>[] = [
     header: 'Catégorie',
     cell: ({ row }) => {
       const link = row.original as Link
-      return h('span', { class: 'text-muted' }, link.category ? link.category : 'Aucune')
+      return h('span', { class: 'text-muted' }, getLinkCategory(link))
     },
   },
   {
@@ -97,17 +86,17 @@ const columns: TableColumn<Link>[] = [
       return h(
         'div',
         { class: 'flex flex-wrap gap-2' },
-        link.tags?.map((tag) =>
-          h(
-            UBadge,
-            {
-              color: 'neutral',
-              variant: 'subtle',
-              class: 'text-xs rounded-full',
-            },
-            () => h('span', tag)
-          )
-        )
+        link.tags && link.tags.length > 0
+          ? link.tags.map((tag: string) =>
+              h(UBadge, {
+                key: tag,
+                color: 'neutral',
+                variant: 'subtle',
+                class: 'text-xs rounded-full mr-1',
+                label: tag,
+              })
+            )
+          : h('span', { class: 'text-muted' }, 'Aucun tag')
       )
     },
   },
@@ -115,20 +104,14 @@ const columns: TableColumn<Link>[] = [
     header: 'QR Code',
     cell: ({ row }) => {
       const link = row.original as Link
-      const shortUrl = link.slugCustom ? link.slugCustom : link.slugAuto
-      const domain = link.domain ? link.domain.label : window.location.hostname
-      const fullUrl = `https://${domain}/${shortUrl}`
+      const qrData = getQRCodeData(link)
 
       return h(UButton, {
         color: 'neutral',
         variant: 'soft',
         size: 'sm',
         icon: 'lucide:qr-code',
-        onClick: () =>
-          qrCode.open({
-            url: fullUrl,
-            filename: `${shortUrl}.png`,
-          }),
+        onClick: () => qrCode.open(qrData),
       })
     },
   },

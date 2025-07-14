@@ -4,6 +4,7 @@ import { ulid } from 'ulid'
 import type { HasMany, ManyToMany } from '@adonisjs/lucid/types/relations'
 import Domain from '#models/domain'
 import User from '#models/user'
+import Link from '#models/link'
 
 export default class Organization extends BaseModel {
   @column({ isPrimary: true })
@@ -24,10 +25,19 @@ export default class Organization extends BaseModel {
   declare logoUrl: string | null
 
   @hasMany(() => Domain)
-  public domains: HasMany<typeof Domain>
+  declare domains: HasMany<typeof Domain>
 
-  @manyToMany(() => User)
-  public users: ManyToMany<typeof User>
+  @hasMany(() => Link)
+  declare links: HasMany<typeof Link>
+
+  @manyToMany(() => User, {
+    pivotTable: 'organization_users',
+    localKey: 'id',
+    pivotForeignKey: 'organization_id',
+    relatedKey: 'id',
+    pivotRelatedForeignKey: 'user_id',
+  })
+  declare users: ManyToMany<typeof User>
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime

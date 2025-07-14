@@ -1,21 +1,19 @@
 import Link from '#models/link'
+import MobileRedirectService from '#services/mobile_redirect_service'
 
 class LinkRedirectService {
-  static getTargetUrl(link: Link, userAgent: string): string {
-    const ua = userAgent.toLowerCase()
+  static getTargetUrl(link: Link): string {
+    return link.targetUrl
+  }
 
-    const isIOS = /iphone|ipad|ipod/.test(ua)
-    const isAndroid = /android/.test(ua)
-
-    if (isIOS && link.iosUrl) {
-      return link.iosUrl
+  static getRedirectUrlWithMobileSupport(link: Link): string {
+    const config = {
+      iosAppId: process.env.IOS_APP_ID,
+      androidPackage: process.env.ANDROID_PACKAGE,
+      fallbackUrl: link.targetUrl,
     }
 
-    if (isAndroid && link.androidUrl) {
-      return link.androidUrl
-    }
-
-    return link.fallbackUrl || link.targetUrl
+    return MobileRedirectService.generateMobileUrl(link.targetUrl, config).fallback
   }
 }
 

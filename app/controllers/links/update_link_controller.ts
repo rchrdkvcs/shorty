@@ -1,10 +1,18 @@
 import type { HttpContext } from '@adonisjs/core/http'
+import { inject } from '@adonisjs/core'
 import Link from '#models/link'
-import string from '@adonisjs/core/helpers/string'
-import Domain from '#models/domain'
+import LinkManagementService from '#services/link_management_service'
+import DomainService from '#services/domain_service'
 import LinkValidator from '#validators/link_validator'
+import { LINK_MESSAGES } from '../../constants/messages.js'
 
+@inject()
 export default class UpdateLinkController {
+  constructor(
+    private linkManagement: LinkManagementService,
+    private domainService: DomainService
+  ) {}
+
   async execute({ request, response, auth, params }: HttpContext) {
     const user = await auth.authenticate()
     const data = await request.validateUsing(LinkValidator.validator)
@@ -13,45 +21,35 @@ export default class UpdateLinkController {
     const link = await Link.findOrFail(linkId)
 
     if (link.userId !== user.id) {
-      return response.status(403).send("Vous n'êtes pas autorisé à modifier ce lien.")
+      return response.status(403).send(LINK_MESSAGES.UNAUTHORIZED)
     }
 
-    const host = request.hostname()
-    const domain = await Domain.findBy('label', host)
-    const domainId = domain?.id ?? null
+    const domainId = await this.domainService.getDomainId(request.hostname())
 
-    if (data.slugCustom) {
-      const existingLink = await Link.query()
-        .where('slug_custom', string.slug(data.slugCustom))
-        .where('id', '!=', linkId)
-        .where((query) => {
-          if (domainId) {
-            query.where('domain_id', domainId)
-          } else {
-            query.whereNull('domain_id')
-          }
-        })
-        .first()
-
-      if (existingLink) {
-        return response.status(400).send('Un lien avec ce slug existe déjà dans ce domaine.')
-      }
-    }
-
-    link.merge({
-      slugCustom: data.slugCustom ? string.slug(data.slugCustom) : null,
-      targetUrl: data.targetUrl,
-      iosUrl: data.iosUrl,
-      androidUrl: data.androidUrl,
-      fallbackUrl: data.fallbackUrl,
-      name: data.name,
-      category: data.category,
-      tags: data.tags,
+    const { slugCustom, isValid } = await this.linkManagement.validateAndPrepareSlug(
+      data.slugCustom,
       domainId,
-    })
+      linkId
+    )
 
-    await link.save()
+    if (!isValid) {
+      return response.status(400).send(LINK_MESSAGES.SLUG_EXISTS)
+    }
 
-    return response.redirect().back()
+    try {
+      await this.linkManagement.updateLink(link, {
+        slugCustom,
+        targetUrl: data.targetUrl,
+        name: data.name,
+        category: data.category,
+        tags: data.tags,
+        domainId,
+        organizationId: data.organizationId,
+      })
+
+      return response.redirect().back()
+    } catch (error) {
+      return response.status(400).send(LINK_MESSAGES.UPDATE_FAILED)
+    }
   }
 }

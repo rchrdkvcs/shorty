@@ -10,11 +10,8 @@ export default class extends BaseSchema {
       table.string('slug_custom').nullable()
       table.string('name').nullable()
       table.string('category').nullable()
-      table.string('tags').nullable()
+      table.text('tags').nullable()
       table.string('target_url').notNullable()
-      table.string('ios_url')
-      table.string('android_url')
-      table.string('fallback_url')
 
       table.string('user_id').references('id').inTable('users').onDelete('CASCADE')
       table.string('domain_id').references('id').inTable('domains').onDelete('SET NULL').nullable()

@@ -24,8 +24,7 @@ export default class ResolveLinkController {
       return response.status(404).send('Lien introuvable')
     }
 
-    const userAgent = request.header('user-agent') || ''
-    const targetUrl = LinkRedirectService.getTargetUrl(link, userAgent)
+    const targetUrl = LinkRedirectService.getTargetUrl(link)
 
     return response.redirect().toPath(targetUrl)
   }

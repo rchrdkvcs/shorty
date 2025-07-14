@@ -1,12 +1,14 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import User from '#models/user'
+import BaseAuthController from '#controllers/auth/base_auth_controller'
 
-export default class AuthRegistersController {
+export default class AuthRegistersController extends BaseAuthController {
   render({ inertia }: HttpContext) {
     return inertia.render('auth/register')
   }
 
-  async execute({ request, response, auth }: HttpContext) {
+  async execute(ctx: HttpContext) {
+    const { request } = ctx
     const { username, email, password } = request.body()
 
     try {
@@ -16,12 +18,10 @@ export default class AuthRegistersController {
         password,
       })
 
-      // Automatically log in the user after registration
-      await auth.use('web').login(user)
-
-      return response.redirect('/')
+      await this.authenticateUser(ctx, user)
+      return this.handleAuthSuccess(ctx)
     } catch (error) {
-      return response.status(400).send({ error: 'Registration failed. Please try again.' })
+      return this.handleRegistrationError(ctx)
     }
   }
 }

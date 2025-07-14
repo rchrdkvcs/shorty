@@ -1,60 +1,47 @@
 import type { HttpContext } from '@adonisjs/core/http'
-import Link from '#models/link'
-import string from '@adonisjs/core/helpers/string'
-import Domain from '#models/domain'
 import { inject } from '@adonisjs/core'
-import SlugGeneratorService from '#services/slug_generator_service'
+import LinkManagementService from '#services/link_management_service'
+import DomainService from '#services/domain_service'
 import LinkValidator from '#validators/link_validator'
+import { LINK_MESSAGES } from '../../constants/messages.js'
 
 @inject()
 export default class StoreLinkController {
-  constructor(private slugGenerator: SlugGeneratorService) {}
+  constructor(
+    private linkManagement: LinkManagementService,
+    private domainService: DomainService
+  ) {}
 
   async execute({ request, response, auth }: HttpContext) {
     const user = await auth.authenticate()
     const data = await request.validateUsing(LinkValidator.validator)
 
-    const slugAuto = this.slugGenerator.generate(8, { lowercase: true })
-    const host = request.hostname()
+    const domainId = await this.domainService.getDomainId(request.hostname())
 
-    const domain = await Domain.findBy('label', host)
-    const domainId = domain?.id ?? null
+    const { slugCustom, isValid } = await this.linkManagement.validateAndPrepareSlug(
+      data.slugCustom,
+      domainId
+    )
 
-    const existingLink = await Link.query()
-      .where((query) => {
-        query.where('slug_auto', slugAuto)
-
-        if (data.slugCustom) {
-          query.orWhere((subQuery) => {
-            subQuery.where('slug_custom', string.slug(data.slugCustom!))
-            if (domainId) {
-              subQuery.andWhere('domain_id', domainId)
-            } else {
-              subQuery.andWhereNull('domain_id')
-            }
-          })
-        }
-      })
-      .first()
-
-    if (existingLink) {
-      return response.status(400).send('Un lien avec ce slug existe déjà dans ce domaine.')
+    if (!isValid) {
+      return response.status(400).send(LINK_MESSAGES.SLUG_EXISTS)
     }
 
-    await Link.create({
-      userId: user.id,
-      slugAuto,
-      slugCustom: data.slugCustom ? string.slug(data.slugCustom) : null,
-      targetUrl: data.targetUrl,
-      iosUrl: data.iosUrl,
-      androidUrl: data.androidUrl,
-      fallbackUrl: data.fallbackUrl,
-      name: data.name,
-      category: data.category,
-      tags: data.tags,
-      domainId,
-    })
+    try {
+      await this.linkManagement.createLink({
+        userId: user.id,
+        targetUrl: data.targetUrl,
+        slugCustom,
+        name: data.name,
+        category: data.category,
+        tags: data.tags,
+        domainId,
+        organizationId: data.organizationId,
+      })
 
-    return response.redirect().back()
+      return response.redirect().back()
+    } catch (error) {
+      return response.status(400).send(LINK_MESSAGES.CREATION_FAILED)
+    }
   }
 }
