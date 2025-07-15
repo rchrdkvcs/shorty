@@ -14,6 +14,10 @@ const StoreLinkController = () => import('#controllers/links/store_link_controll
 const IndexLinkController = () => import('#controllers/links/index_link_controller')
 const UpdateLinkController = () => import('#controllers/links/update_link_controller')
 const StoreDomainController = () => import('#controllers/domains/store_domain_controller')
+const IndexDomainController = () => import('#controllers/domains/index_domain_controller')
+const ShowDomainController = () => import('#controllers/domains/show_domain_controller')
+const UpdateDomainController = () => import('#controllers/domains/update_domain_controller')
+const DeleteDomainController = () => import('#controllers/domains/delete_domain_controller')
 const ResolveLinkController = () => import('#controllers/links/resolve_link_controller')
 const AuthLoginsController = () => import('#controllers/auth/auth_logins_controller')
 const AuthRegistersController = () => import('#controllers/auth/auth_registers_controller')
@@ -40,11 +44,15 @@ router
   .group(() => {
     router.get('/dashboard/links', [IndexLinkController, 'render'])
     router.get('/dashboard/organizations', [IndexOrganizationController, 'render'])
+    router.get('/dashboard/domains', [IndexDomainController, 'index'])
+    router.get('/dashboard/domains/:id', [ShowDomainController, 'show'])
 
     router.post('/links', [StoreLinkController, 'execute'])
     router.patch('/links/:id', [UpdateLinkController, 'execute'])
 
     router.post('/domains', [StoreDomainController, 'store'])
+    router.patch('/domains/:id', [UpdateDomainController, 'update'])
+    router.delete('/domains/:id', [DeleteDomainController, 'delete'])
 
     router.post('/organizations', [StoreOrganizationController, 'execute'])
     router.patch('/organizations/:id', [UpdateOrganizationController, 'execute'])

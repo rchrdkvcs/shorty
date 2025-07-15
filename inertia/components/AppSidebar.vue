@@ -1,9 +1,11 @@
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import type { NavigationMenuItem } from '@nuxt/ui'
 import type { DropdownMenuItem } from '@nuxt/ui'
 import { usePage } from '@inertiajs/vue3'
 import type User from '#models/user'
+import { useOrganization } from '~/composables/use_organization'
+import OrganizationForm from '~/components/OrganizationForm.vue'
 
 const navigationItems = ref<NavigationMenuItem[]>([
   [
@@ -17,37 +19,47 @@ const navigationItems = ref<NavigationMenuItem[]>([
       icon: 'lucide:link',
       to: '/dashboard/links',
     },
-    {
-      label: 'Organisations',
-      icon: 'lucide:building',
-      to: '/dashboard/organizations',
-    },
-    {
-      label: 'QR Codes',
-      icon: 'lucide:qr-code',
-      to: '/dashboard/qr-codes',
-    },
-    {
-      label: 'Paramètres',
-      icon: 'lucide:cog',
-      to: '/settings',
-    },
   ],
 ])
-const organizationItems = ref<DropdownMenuItem[]>([
-  {
-    label: 'Gérer les organisations',
-    icon: 'lucide:building-2',
-    to: '/dashboard/organizations',
-  },
-  {
-    label: 'Ajouter une organisation',
-    icon: 'lucide:plus',
-    click: () => {
-      // TODO: Ouvrir modal de création d'organisation
+const { organizations, currentOrganization, switchOrganization } = useOrganization()
+const page = usePage()
+const overlay = useOverlay()
+const orgModal = overlay.create(OrganizationForm)
+
+const organizationSwitchItems = computed(() => {
+  const items: DropdownMenuItem[] = []
+
+  if (organizations.value.length > 0) {
+    items.push([
+      ...organizations.value.map((org) => ({
+        class: 'cursor-pointer',
+        label: org.name,
+        icon: 'lucide:building',
+        onClick: () => {
+          switchOrganization(org)
+        },
+      })),
+    ])
+  }
+
+  items.push([
+    {
+      label: 'Ajouter une organisation',
+      icon: 'lucide:plus',
+      onClick: () => {
+        orgModal.open({ mode: 'create' })
+      },
     },
-  },
-])
+    {
+      label: 'Gérer les organisations',
+      icon: 'lucide:settings',
+      to: '/dashboard/organizations',
+    },
+  ])
+
+  return items
+})
+
 const profileItems = ref<DropdownMenuItem[]>([
   {
     label: 'Mon profil',
@@ -66,7 +78,7 @@ const profileItems = ref<DropdownMenuItem[]>([
   },
 ])
 
-const user = usePage().props.user as User
+const user = page.props.user as User
 </script>
 
 <template>
@@ -82,20 +94,27 @@ const user = usePage().props.user as User
     <template #list-leading>
       <div class="p-2 pb-0">
         <UDropdownMenu
-          :items="organizationItems"
+          :items="organizationSwitchItems"
           :ui="{
             content: 'w-58',
           }"
           class="w-full"
         >
-          <UButton color="neutral" variant="ghost" class="flex justify-start items-center gap-2">
+          <UButton
+            color="neutral"
+            variant="ghost"
+            class="flex justify-start items-center gap-2 w-full"
+          >
             <span class="p-2 bg-muted rounded-md">
               <UIcon name="lucide:building-2" class="size-5" />
             </span>
-            <p class="flex flex-col justify-center items-start">
-              <span class="font-semibold">Mon Organisation</span>
-              <span class="text-xs text-muted">Organisation</span>
+            <p class="flex flex-col justify-center items-start flex-1 min-w-0">
+              <span class="font-semibold truncate">
+                {{ currentOrganization?.name || organizations[0]?.name || 'Aucune organisation' }}
+              </span>
+              <span class="text-xs text-muted">Organisation actuelle</span>
             </p>
+            <UIcon name="lucide:chevron-down" class="size-4 text-muted" />
           </UButton>
         </UDropdownMenu>
       </div>
