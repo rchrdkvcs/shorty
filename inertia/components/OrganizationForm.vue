@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { reactive, computed } from 'vue'
 import { router } from '@inertiajs/vue3'
-import type { Organization } from '~/types/organization'
+import type Organization from '#models/organization'
 
 interface Props {
   organization?: Organization
