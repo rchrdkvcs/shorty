@@ -73,6 +73,9 @@ function submit() {
           class="mt-2"
           size="lg"
         />
+        <p class="text-muted">
+          Version Beta 6
+        </p>
       </form>
     </div>
   </div>
