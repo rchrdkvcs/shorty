@@ -4,13 +4,10 @@ import AppSidebar from '~/components/AppSidebar.vue'
 
 <template>
   <UApp>
-    <div class="grid grid-cols-[256px_1fr] h-screen bg-default">
+    <UDashboardGroup>
       <AppSidebar />
-      <main class="size-full overflow-x-scroll">
-        <slot />
-      </main>
-    </div>
+
+      <slot />
+    </UDashboardGroup>
   </UApp>
 </template>
-
-<style scoped></style>

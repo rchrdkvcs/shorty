@@ -12,12 +12,15 @@ export default defineConfig({
     adonisjs({ entrypoints: ['inertia/app/app.ts'], reload: ['resources/views/**/*.edge'] }),
     ui({
       router: 'inertia',
-      colorMode: false,
       ui: {
         button: {
           slots: {
             base: 'cursor-pointer',
           },
+        },
+        colors: {
+          primary: 'green',
+          neutral: 'stone',
         },
       },
     }),
