@@ -8,7 +8,7 @@ export function useLink() {
 
   const buildShortUrl = (link: Link): string => {
     const shortUrl = link.slugCustom || link.slugAuto
-    const domain = link.domain ? link.domain.label : window.location.hostname
+    const domain = link.domain ? link.domain.label : globalThis.location.hostname
     return `${domain}/${shortUrl}`
   }
 
@@ -49,7 +49,7 @@ export function useLink() {
 
   const getQRCodeData = (link: Link) => {
     const shortUrl = link.slugCustom || link.slugAuto
-    const domain = link.domain ? link.domain.label : window.location.hostname
+    const domain = link.domain ? link.domain.label : globalThis.location.hostname
 
     return {
       url: `https://${domain}/${shortUrl}`,

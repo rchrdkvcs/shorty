@@ -11,7 +11,7 @@ export default defineConfig({
     vue(),
     adonisjs({ entrypoints: ['inertia/app/app.ts'], reload: ['resources/views/**/*.edge'] }),
     ui({
-      inertia: true,
+      router: 'inertia',
       colorMode: false,
       ui: {
         button: {
