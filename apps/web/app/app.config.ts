@@ -28,7 +28,7 @@ export default defineAppConfig({
     },
     dashboardPanel: {
       slots: {
-        root: "p-4 pl-0",
+        root: "p-4 pl-0 border-none!",
         body: "bg-elevated/50 rounded-b-lg border border-default/75",
       },
     },

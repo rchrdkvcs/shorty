@@ -1,13 +1,40 @@
-<script lang="ts"></script>
+<script lang="ts">
+const links = ref([
+  {
+    name: "My New Link",
+    destination: "https://discord.com",
+    customSlug: "discord",
+    autoSlug: "ar395gdsf",
+  },
+]);
+
+const selectedLink = ref(null);
+</script>
 
 <template>
-  <UDashboardPanel>
+  <UDashboardPanel id="links-panel">
     <template #header>
       <UDashboardNavbar title="Links" />
     </template>
 
     <template #body>
-      <h1>This is what is it</h1>
+      <UPageGrid>
+        <UPageCard v-for="link in links" variant="soft">
+          {{ link.name }}
+        </UPageCard>
+      </UPageGrid>
+    </template>
+  </UDashboardPanel>
+
+  <UDashboardPanel v-if="selectedLink" id="link-panel">
+    <template #header>
+      <UDashboardNavbar title="Links" />
+    </template>
+
+    <template #body>
+      <UPageGrid>
+        <UPageCard variant="soft"></UPageCard>
+      </UPageGrid>
     </template>
   </UDashboardPanel>
 </template>

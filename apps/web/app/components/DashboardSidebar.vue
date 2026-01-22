@@ -40,7 +40,7 @@ const authStore = useAuthStore();
   <UDashboardSidebar>
     <template #default>
       <UButton
-        label="Quick add"
+        label="Quick add link"
         icon="i-lucide-plus"
         color="neutral"
         variant="subtle"
@@ -57,8 +57,8 @@ const authStore = useAuthStore();
           src: authStore.user?.avatarUrl,
           alt: 'Avatar',
         }"
-        :name="authStore.user.nickname"
-        :description="authStore.user.email"
+        :name="authStore.user?.nickname"
+        :description="authStore.user?.email"
       />
     </template>
   </UDashboardSidebar>
