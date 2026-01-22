@@ -1,8 +1,0 @@
-services:
-  app:
-    container_name: shorty
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - '6000:3000'

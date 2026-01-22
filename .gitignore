@@ -1,29 +1,24 @@
-# Dependencies and AdonisJS build
+# Nuxt dev/build outputs
+.output
+.data
+.nuxt
+.nitro
+.cache
+dist
+
+# Node dependencies
 node_modules
-build
-tmp
 
-# Secrets
-.env
-.env.local
-.env.production.local
-.env.development.local
+# Logs
+logs
+*.log
 
-# Frontend assets compiled code
-public/assets
-
-# Build tools specific
-npm-debug.log
-yarn-error.log
-
-# Editors specific
+# Misc
+.DS_Store
 .fleet
 .idea
-.vscode
 
-# Platform specific
-.DS_Store
-
-# Auto-generated type declarations
-auto-imports.d.ts
-components.d.ts
+# Local env files
+.env
+.env.*
+!.env.example
