@@ -9,8 +9,19 @@
 
 import router from '@adonisjs/core/services/router'
 
-router.get('/', async () => {
-  return {
-    hello: 'world',
-  }
-})
+const AuthController = () => import('#controllers/auth_controller')
+
+router
+  .group(() => {
+    router
+      .group(() => {
+        router.get('redirect', [AuthController, 'redirect'])
+        router.get('callback', [AuthController, 'callback'])
+      })
+      .prefix(':provider')
+      .where('provider', /discord|github|google|twitter/)
+
+    router.get('me', [AuthController, 'me'])
+    router.post('logout', [AuthController, 'logout'])
+  })
+  .prefix('auth')

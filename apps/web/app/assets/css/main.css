@@ -4,3 +4,11 @@
 @theme static {
   --font-sans: 'Geist', sans-serif;
 }
+
+:root {
+  --ui-radius: 0.5rem;
+}
+
+.dark {
+  --ui-bg: var(--color-zinc-950);
+}

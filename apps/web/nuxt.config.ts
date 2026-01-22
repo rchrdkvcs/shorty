@@ -1,5 +1,17 @@
 export default defineNuxtConfig({
-  modules: ["@nuxt/eslint", "@nuxt/ui", "@nuxt/image"],
+  modules: [
+    "@nuxt/eslint",
+    "@nuxt/ui",
+    "@nuxt/image",
+    "@pinia/nuxt",
+    "@pinia/colada-nuxt",
+  ],
+
+  runtimeConfig: {
+    public: {
+      apiUrl: process.env.NUXT_PUBLIC_API_URL || "http://localhost:3333",
+    },
+  },
 
   devtools: {
     enabled: true,

@@ -51,6 +51,7 @@
     "typescript": "~5.8"
   },
   "dependencies": {
+    "@adonisjs/ally": "^5.1.1",
     "@adonisjs/auth": "^9.4.0",
     "@adonisjs/core": "^6.18.0",
     "@adonisjs/cors": "^2.2.1",
@@ -59,7 +60,8 @@
     "@vinejs/vine": "^3.0.1",
     "luxon": "^3.7.2",
     "pg": "^8.17.2",
-    "reflect-metadata": "^0.2.2"
+    "reflect-metadata": "^0.2.2",
+    "ulid": "^3.0.2"
   },
   "hotHook": {
     "boundaries": [
