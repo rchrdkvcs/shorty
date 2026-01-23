@@ -29,3 +29,6 @@ router
   .prefix('auth')
 
 router.resource('links', LinksController).apiOnly().use('*', middleware.auth())
+
+// Public redirect lookup (no auth required)
+router.get('r/:slug', [LinksController, 'findBySlug'])

@@ -54,4 +54,8 @@ export default class LinksController {
     const user = auth.getUserOrFail()
     return this.linkService.destroy(params.id, user.id)
   }
+
+  public async findBySlug({ params }: HttpContext) {
+    return this.linkService.findBySlug(params.slug)
+  }
 }
