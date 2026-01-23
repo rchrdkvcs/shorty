@@ -8,10 +8,7 @@ export const useAuthStore = defineStore("auth", () => {
     if (user.value) return;
 
     try {
-      user.value = await $fetch<User>(useBaseUrl("/auth/me"), {
-        credentials: "include",
-        headers: useRequestHeaders(["cookie"]) as HeadersInit,
-      });
+      user.value = await useApi<User>("/auth/me");
     } catch (error) {
       user.value = null;
       console.error(error);

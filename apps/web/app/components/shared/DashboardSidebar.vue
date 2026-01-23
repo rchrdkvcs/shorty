@@ -50,7 +50,6 @@ const quickModal = overlay.create(QuickAddModal);
         @click="quickModal.open()"
         block
       />
-
       <UNavigationMenu :items="items" orientation="vertical" />
     </template>
 

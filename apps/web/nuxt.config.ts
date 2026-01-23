@@ -7,12 +7,6 @@ export default defineNuxtConfig({
     "@pinia/colada-nuxt",
   ],
 
-  runtimeConfig: {
-    public: {
-      apiUrl: process.env.NUXT_PUBLIC_API_URL || "http://localhost:3333",
-    },
-  },
-
   devtools: {
     enabled: true,
   },
@@ -21,6 +15,10 @@ export default defineNuxtConfig({
 
   routeRules: {
     "/": { prerender: true },
+    "/api/**": {
+      proxy:
+        (process.env.NUXT_PUBLIC_API_URL || "http://localhost:3333") + "/**",
+    },
   },
 
   compatibilityDate: "2025-01-15",

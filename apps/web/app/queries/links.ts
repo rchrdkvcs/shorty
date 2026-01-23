@@ -22,20 +22,14 @@ export const LINK_QUERY_KEYS = {
 export const useLinksQuery = () => {
   return useQuery({
     key: LINK_QUERY_KEYS.all,
-    query: () =>
-      $fetch<Link[]>(useBaseUrl("/links"), {
-        credentials: "include",
-      }),
+    query: () => useApi<Link[]>("/links"),
   });
 };
 
 export const useLinkQuery = (id: MaybeRefOrGetter<string>) => {
   return useQuery({
     key: () => LINK_QUERY_KEYS.detail(toValue(id)),
-    query: () =>
-      $fetch<Link>(useBaseUrl(`/links/${toValue(id)}`), {
-        credentials: "include",
-      }),
+    query: () => useApi<Link>(`/links/${toValue(id)}`),
   });
 };
 
@@ -44,10 +38,9 @@ export const useCreateLinkMutation = () => {
 
   return useMutation({
     mutation: (payload: CreateLinkPayload) =>
-      $fetch<Link>(useBaseUrl("/links"), {
+      useApi<Link>("/links", {
         method: "POST",
         body: payload,
-        credentials: "include",
       }),
     onSettled: () => {
       cache.invalidateQueries({ key: LINK_QUERY_KEYS.all });
@@ -60,10 +53,9 @@ export const useUpdateLinkMutation = () => {
 
   return useMutation({
     mutation: ({ id, ...payload }: UpdateLinkPayload & { id: string }) =>
-      $fetch<Link>(useBaseUrl(`/links/${id}`), {
+      useApi<Link>(`/links/${toValue(id)}`, {
         method: "PATCH",
         body: payload,
-        credentials: "include",
       }),
     onSettled: (_data, _error, { id }) => {
       cache.invalidateQueries({ key: LINK_QUERY_KEYS.all });
@@ -77,9 +69,8 @@ export const useDeleteLinkMutation = () => {
 
   return useMutation({
     mutation: (id: string) =>
-      $fetch(useBaseUrl(`/links/${id}`), {
+      useApi<Link>(`/links/${toValue(id)}`, {
         method: "DELETE",
-        credentials: "include",
       }),
     onSettled: () => {
       cache.invalidateQueries({ key: LINK_QUERY_KEYS.all });
