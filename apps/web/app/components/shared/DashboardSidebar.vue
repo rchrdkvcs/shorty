@@ -9,6 +9,11 @@ const items = ref<NavigationMenuItem>([
     to: "/",
   },
   {
+    label: "Analytics",
+    icon: "lucide:bar-chart-3",
+    to: "/analytics",
+  },
+  {
     label: "My Links",
     icon: "lucide:link",
     to: "/links",
