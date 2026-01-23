@@ -24,6 +24,11 @@ const items = ref<NavigationMenuItem>([
     to: "/qrcodes",
   },
   {
+    label: "Domains",
+    icon: "lucide:globe",
+    to: "/domains",
+  },
+  {
     label: "Shared with me",
     icon: "lucide:users",
     to: "/shared",

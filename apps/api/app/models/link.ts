@@ -2,6 +2,7 @@ import { DateTime } from 'luxon'
 import { BaseModel, beforeCreate, belongsTo, column } from '@adonisjs/lucid/orm'
 import { ulid } from 'ulid'
 import User from '#models/user'
+import Domain from '#models/domain'
 import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 
 export default class Link extends BaseModel {
@@ -13,6 +14,12 @@ export default class Link extends BaseModel {
 
   @belongsTo(() => User)
   declare user: BelongsTo<typeof User>
+
+  @column()
+  declare domainId: string | null
+
+  @belongsTo(() => Domain)
+  declare domain: BelongsTo<typeof Domain>
 
   @column()
   declare targetUrl: string

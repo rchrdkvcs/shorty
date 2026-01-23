@@ -13,6 +13,7 @@ import { middleware } from './kernel.js'
 const AuthController = () => import('#controllers/auth_controller')
 const LinksController = () => import('#controllers/links_controller')
 const AnalyticsController = () => import('#controllers/analytics_controller')
+const DomainsController = () => import('#controllers/domains_controller')
 
 router
   .group(() => {
@@ -30,6 +31,20 @@ router
   .prefix('auth')
 
 router.resource('links', LinksController).apiOnly().use('*', middleware.auth())
+
+// Domains routes (auth required)
+router
+  .group(() => {
+    router.get('/', [DomainsController, 'index'])
+    router.get('/verified', [DomainsController, 'verified'])
+    router.post('/', [DomainsController, 'store'])
+    router.get('/:id', [DomainsController, 'show'])
+    router.patch('/:id', [DomainsController, 'update'])
+    router.delete('/:id', [DomainsController, 'destroy'])
+    router.post('/:id/verify', [DomainsController, 'verify'])
+  })
+  .prefix('domains')
+  .use(middleware.auth())
 
 // Analytics routes (auth required)
 router

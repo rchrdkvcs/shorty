@@ -75,7 +75,16 @@ const getCardTitle = (link: Link) => {
             </UFieldGroup>
           </div>
 
-          <div class="flex items-center justify-start gap-2">
+          <div class="flex items-center justify-start gap-2 flex-wrap">
+            <UBadge
+              v-if="link.domain"
+              variant="subtle"
+              color="primary"
+              size="sm"
+            >
+              <UIcon name="lucide:globe" class="w-3 h-3 mr-1" />
+              {{ link.domain.domain }}
+            </UBadge>
             <UButton
               v-if="link.slugCustom"
               icon="lucide:copy"

@@ -1,9 +1,39 @@
 <script setup lang="ts">
 import type Link from "@shorty/api/app/models/link";
 import { useDeleteLinkMutation, useUpdateLinkMutation } from "~/queries/links";
+import { useVerifiedDomainsQuery, type Domain } from "~/queries/domains";
 
 const selectedLink = useState<Link | null>("selected-link", () => null);
 const toast = useToast();
+
+const { data: domains } = useVerifiedDomainsQuery();
+
+const currentHost = computed(() => {
+  if (import.meta.client) {
+    return globalThis.location.host;
+  }
+  return "shorty.app";
+});
+
+const domainOptions = computed(() => {
+  const options: Array<{ label: string; value: string }> = [
+    { label: `${currentHost.value} (default)`, value: "" }
+  ];
+  if (domains.value) {
+    domains.value.forEach((domain: Domain) => {
+      options.push({ label: domain.domain, value: domain.id });
+    });
+  }
+  return options;
+});
+
+// Computed for USelect binding (needs object, not just value)
+const selectedDomainOption = computed({
+  get: () => domainOptions.value.find(opt => opt.value === form.domainId) || domainOptions.value[0],
+  set: (val) => {
+    form.domainId = val?.value ?? "";
+  }
+});
 
 const { mutateAsync: updateLink, isLoading: isUpdating } =
   useUpdateLinkMutation();
@@ -15,6 +45,7 @@ const form = reactive({
   label: "",
   category: "",
   slugCustom: "",
+  domainId: "",
 });
 
 watch(
@@ -25,18 +56,29 @@ watch(
       form.label = link.label ?? "";
       form.category = link.category ?? "";
       form.slugCustom = link.slugCustom ?? "";
+      form.domainId = link.domainId ?? "";
     }
   },
   { immediate: true },
 );
 
-const appBaseUrl = () => {
+const selectedDomainName = computed(() => {
+  if (form.domainId && domains.value) {
+    const domain = domains.value.find((d: Domain) => d.id === form.domainId);
+    return domain ? `https://${domain.domain}` : "";
+  }
+  return "";
+});
+
+const appBaseUrl = computed(() => {
+  if (selectedDomainName.value) {
+    return selectedDomainName.value;
+  }
   if (import.meta.client) {
     return globalThis.location.origin;
   }
-
   return "";
-};
+});
 
 const getCardTitle = (link: Link) => {
   if (link.label) return link.label;
@@ -57,6 +99,7 @@ const handleSave = async () => {
       label: form.label || null,
       category: form.category || null,
       slugCustom: form.slugCustom || null,
+      domainId: form.domainId || null,
     });
 
     toast.add({
@@ -170,13 +213,31 @@ const isLoading = computed(() => isUpdating.value || isDeleting.value);
         />
       </UFormField>
 
+      <UFormField label="Domain">
+        <USelect
+          v-model="selectedDomainOption"
+          :items="domainOptions"
+          class="w-full"
+          :disabled="isLoading"
+        />
+        <template #hint>
+          <NuxtLink
+            v-if="!domains?.length"
+            to="/domains"
+            class="text-primary hover:underline text-xs"
+          >
+            Add a custom domain
+          </NuxtLink>
+        </template>
+      </UFormField>
+
       <UFormField label="Custom slug">
         <UFieldGroup class="w-full">
           <UBadge
             variant="subtle"
             color="neutral"
             size="lg"
-            :label="`${appBaseUrl()}/`"
+            :label="`${appBaseUrl}/`"
           />
 
           <UInput

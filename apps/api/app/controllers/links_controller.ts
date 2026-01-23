@@ -10,6 +10,7 @@ const createLinkValidator = vine.compile(
     slugCustom: vine.string().minLength(3).maxLength(50).optional(),
     label: vine.string().maxLength(100).optional(),
     category: vine.string().maxLength(50).optional(),
+    domainId: vine.string().optional().nullable(),
   })
 )
 
@@ -19,6 +20,7 @@ const updateLinkValidator = vine.compile(
     slugCustom: vine.string().minLength(3).maxLength(50).optional().nullable(),
     label: vine.string().maxLength(100).optional().nullable(),
     category: vine.string().maxLength(50).optional().nullable(),
+    domainId: vine.string().optional().nullable(),
   })
 )
 

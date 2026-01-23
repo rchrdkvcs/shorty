@@ -5,6 +5,7 @@ interface CreateLinkPayload {
   slugCustom?: string | null;
   label?: string | null;
   category?: string | null;
+  domainId?: string | null;
 }
 
 interface UpdateLinkPayload {
@@ -12,6 +13,7 @@ interface UpdateLinkPayload {
   slugCustom?: string | null;
   label?: string | null;
   category?: string | null;
+  domainId?: string | null;
 }
 
 export const LINK_QUERY_KEYS = {
