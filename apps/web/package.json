@@ -11,13 +11,14 @@
     "typecheck": "nuxt typecheck"
   },
   "dependencies": {
-    "@shorty/api": "workspace:*",
     "@iconify-json/lucide": "^1.2.86",
     "@iconify-json/simple-icons": "^1.2.67",
     "@nuxt/image": "2.0.0",
     "@nuxt/ui": "^4.4.0",
     "@pinia/colada-nuxt": "0.3.1",
     "@pinia/nuxt": "0.11.3",
+    "@shorty/api": "workspace:*",
+    "@vueuse/core": "^14.1.0",
     "nuxt": "^4.2.2",
     "pinia": "^3.0.4",
     "tailwindcss": "^4.1.18"

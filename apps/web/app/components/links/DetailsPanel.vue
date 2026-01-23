@@ -109,7 +109,7 @@ const isLoading = computed(() => isUpdating.value || isDeleting.value);
     }"
   >
     <template #header>
-      <UDashboardNavbar :title="'Edition de ' + getCardTitle(selectedLink)">
+      <UDashboardNavbar :title="'Edit ' + getCardTitle(selectedLink)">
         <template #right>
           <UButton
             icon="lucide:x"

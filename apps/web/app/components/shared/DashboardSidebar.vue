@@ -4,18 +4,24 @@ import QuickAddModal from "~/components/modals/QuickAddModal.vue";
 
 const items = ref<NavigationMenuItem>([
   {
-    label: "Home",
-    icon: "i-lucide-house",
+    label: "Dashboard",
+    icon: "lucide:layout-dashboard",
     to: "/",
   },
   {
-    label: "Links",
-    icon: "i-lucide-link",
+    label: "My Links",
+    icon: "lucide:link",
     to: "/links",
   },
   {
-    label: "Contacts",
-    icon: "i-lucide-users",
+    label: "QR Codes",
+    icon: "lucide:qr-code",
+    to: "/qrcodes",
+  },
+  {
+    label: "Shared with me",
+    icon: "lucide:users",
+    to: "/shared",
   },
   {
     label: "Settings",
