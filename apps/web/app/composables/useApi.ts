@@ -3,7 +3,7 @@ export const useApi = <T>(
   opts?: Parameters<typeof $fetch<T>>[1],
 ) => {
   return $fetch<T>(request, {
-    baseURL: "/api",
+    baseURL: "/adonis",
     ...opts,
 
     headers: useRequestHeaders(["cookie"]) as HeadersInit,
