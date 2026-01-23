@@ -1,7 +1,34 @@
 <script setup lang="ts">
 import type Link from "@shorty/api/app/models/link";
+import { useDeleteLinkMutation, useUpdateLinkMutation } from "~/queries/links";
 
 const selectedLink = useState<Link | null>("selected-link", () => null);
+const toast = useToast();
+
+const { mutateAsync: updateLink, isLoading: isUpdating } =
+  useUpdateLinkMutation();
+const { mutateAsync: deleteLink, isLoading: isDeleting } =
+  useDeleteLinkMutation();
+
+const form = reactive({
+  targetUrl: "",
+  label: "",
+  category: "",
+  slugCustom: "",
+});
+
+watch(
+  selectedLink,
+  (link) => {
+    if (link) {
+      form.targetUrl = link.targetUrl;
+      form.label = link.label ?? "";
+      form.category = link.category ?? "";
+      form.slugCustom = link.slugCustom ?? "";
+    }
+  },
+  { immediate: true },
+);
 
 const appBaseUrl = () => {
   if (import.meta.client) {
@@ -19,6 +46,58 @@ const getCardTitle = (link: Link) => {
     return link.targetUrl;
   }
 };
+
+const handleSave = async () => {
+  if (!selectedLink.value) return;
+
+  try {
+    await updateLink({
+      id: selectedLink.value.id,
+      targetUrl: form.targetUrl,
+      label: form.label || null,
+      category: form.category || null,
+      slugCustom: form.slugCustom || null,
+    });
+
+    toast.add({
+      title: "Lien mis à jour",
+      description: "Les modifications ont été sauvegardées.",
+      color: "success",
+    });
+
+    selectedLink.value = null;
+  } catch (error) {
+    toast.add({
+      title: "Impossible de mettre à jour le lien.",
+      description: error instanceof Error ? error.message : String(error),
+      color: "error",
+    });
+  }
+};
+
+const handleDelete = async () => {
+  if (!selectedLink.value) return;
+
+  try {
+    await deleteLink(selectedLink.value.id);
+
+    toast.add({
+      title: "Lien supprimé",
+      description: "Le lien a été supprimé avec succès.",
+      color: "success",
+    });
+
+    selectedLink.value = null;
+  } catch (error) {
+    toast.add({
+      title: "Impossible de supprimer le lien.",
+      description: error instanceof Error ? error.message : String(error),
+      color: "error",
+    });
+  }
+};
+
+const isLoading = computed(() => isUpdating.value || isDeleting.value);
 </script>
 
 <template>
@@ -64,27 +143,30 @@ const getCardTitle = (link: Link) => {
 
       <UFormField label="Target link" required>
         <UInput
-          v-model="selectedLink.targetUrl"
+          v-model="form.targetUrl"
           icon="lucide:globe"
           class="w-full"
+          :disabled="isLoading"
         />
       </UFormField>
 
       <UFormField label="Label of short link">
         <UInput
-          v-model="selectedLink.label"
+          v-model="form.label"
           placeholder="Ex: Mon Portfolio"
           icon="lucide:tag"
           class="w-full"
+          :disabled="isLoading"
         />
       </UFormField>
 
       <UFormField label="Category">
         <UInput
-          v-model="selectedLink.category"
+          v-model="form.category"
           placeholder="Ex: Pro"
           icon="lucide:folder"
           class="w-full"
+          :disabled="isLoading"
         />
       </UFormField>
 
@@ -98,9 +180,10 @@ const getCardTitle = (link: Link) => {
           />
 
           <UInput
-            v-model="selectedLink.slugCustom"
+            v-model="form.slugCustom"
             class="w-full"
             placeholder="my-content"
+            :disabled="isLoading"
           />
         </UFieldGroup>
       </UFormField>
@@ -111,13 +194,18 @@ const getCardTitle = (link: Link) => {
           label="Supprimer"
           variant="subtle"
           icon="lucide:trash"
+          :loading="isDeleting"
+          :disabled="isUpdating"
+          @click="handleDelete"
         />
         <UButton
-          type="submit"
           color="neutral"
           variant="subtle"
           icon="lucide:save"
           label="Sauvegarder"
+          :loading="isUpdating"
+          :disabled="isDeleting"
+          @click="handleSave"
         />
       </UFieldGroup>
     </template>
