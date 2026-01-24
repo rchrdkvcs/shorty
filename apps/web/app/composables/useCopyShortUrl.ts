@@ -7,7 +7,7 @@ export function useCopyShortUrl() {
 
   const getShortUrl = (link: Link, slug: string) => {
     if (import.meta.client) {
-      const baseUrl = link.domain 
+      const baseUrl = link.domain?.domain
         ? `https://${link.domain.domain}` 
         : globalThis.location.origin;
       return `${baseUrl}/${slug}`;
@@ -45,6 +45,7 @@ export function useCopyShortUrl() {
         color: "success",
       });
     } catch (error) {
+      console.error("Failed to copy URL to clipboard:", error);
       toast.add({
         title: "Erreur de copie",
         description: "Impossible de copier l'URL dans le presse-papier.",
