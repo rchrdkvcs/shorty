@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import type Link from "@shorty/api/app/models/link";
-import { useClipboard } from "@vueuse/core";
 import { useDeleteLinkMutation, useUpdateLinkMutation } from "~/queries/links";
 import { useVerifiedDomainsQuery, type Domain } from "~/queries/domains";
 
 const selectedLink = useState<Link | null>("selected-link", () => null);
 const toast = useToast();
-const { copy } = useClipboard();
+const { copyShortUrl } = useCopyShortUrl();
 
 const { data: domains } = useVerifiedDomainsQuery();
 
@@ -144,27 +143,9 @@ const handleDelete = async () => {
 
 const isLoading = computed(() => isUpdating.value || isDeleting.value);
 
-const getShortUrl = (slug: string) => {
-  const link = selectedLink.value;
-  if (!link) return `/${slug}`;
-  
-  if (import.meta.client) {
-    const baseUrl = link.domain 
-      ? `https://${link.domain.domain}` 
-      : globalThis.location.origin;
-    return `${baseUrl}/${slug}`;
-  }
-  return `/${slug}`;
-};
-
 const handleCopyUrl = async (slug: string) => {
-  const url = getShortUrl(slug);
-  await copy(url);
-  toast.add({
-    title: "URL copiée",
-    description: `${url} a été copié dans le presse-papier.`,
-    color: "success",
-  });
+  if (!selectedLink.value) return;
+  await copyShortUrl(selectedLink.value, slug);
 };
 </script>
 
