@@ -5,6 +5,7 @@ import { useVerifiedDomainsQuery, type Domain } from "~/queries/domains";
 
 const selectedLink = useState<Link | null>("selected-link", () => null);
 const toast = useToast();
+const { copyShortUrl } = useCopyShortUrl();
 
 const { data: domains } = useVerifiedDomainsQuery();
 
@@ -141,6 +142,11 @@ const handleDelete = async () => {
 };
 
 const isLoading = computed(() => isUpdating.value || isDeleting.value);
+
+const handleCopyUrl = async (slug: string) => {
+  if (!selectedLink.value) return;
+  await copyShortUrl(selectedLink.value, slug);
+};
 </script>
 
 <template>
@@ -173,10 +179,17 @@ const isLoading = computed(() => isUpdating.value || isDeleting.value);
             variant="soft"
             color="neutral"
             size="sm"
+            @click="handleCopyUrl(selectedLink.slugCustom)"
           >
             /{{ selectedLink.slugCustom }}
           </UButton>
-          <UButton icon="lucide:copy" variant="soft" color="neutral" size="sm">
+          <UButton 
+            icon="lucide:copy" 
+            variant="soft" 
+            color="neutral" 
+            size="sm"
+            @click="handleCopyUrl(selectedLink.slugAuto)"
+          >
             /{{ selectedLink.slugAuto }}
           </UButton>
         </div>

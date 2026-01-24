@@ -4,7 +4,7 @@ import { ulid } from 'ulid'
 import Link from '#models/link'
 import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 
-export default class LinkClick extends BaseModel {
+export default class Analytics extends BaseModel {
   @column({ isPrimary: true })
   declare id: string
 
@@ -42,7 +42,7 @@ export default class LinkClick extends BaseModel {
   declare createdAt: DateTime
 
   @beforeCreate()
-  static generateUuid(click: LinkClick) {
-    click.id = ulid()
+  static generateUuid(analytics: Analytics) {
+    analytics.id = ulid()
   }
 }
