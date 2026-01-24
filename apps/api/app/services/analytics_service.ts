@@ -1,4 +1,4 @@
-import LinkClick from '#models/analytics'
+import Analytics from '#models/analytics'
 import Link from '#models/link'
 import { DateTime } from 'luxon'
 import db from '@adonisjs/lucid/services/db'
@@ -17,12 +17,11 @@ interface RecordClickPayload {
 
 export default class AnalyticsService {
   public async recordClick(payload: RecordClickPayload) {
-    return LinkClick.create(payload)
+    return Analytics.create(payload)
   }
 
   public async getOverview(userId: string, days: number = 30) {
-    const startDate = DateTime.now().minus({ days }).toSQL()
-
+    DateTime.now().minus({ days }).toSQL()
     const userLinks = await Link.query().where('userId', userId).select('id')
     const linkIds = userLinks.map((link) => link.id)
 
@@ -37,20 +36,20 @@ export default class AnalyticsService {
     }
 
     const [totalClicks, clicksToday, clicksThisWeek, clicksThisMonth] = await Promise.all([
-      LinkClick.query().whereIn('linkId', linkIds).count('* as total').first(),
-      LinkClick.query()
+      Analytics.query().whereIn('linkId', linkIds).count('* as total').first(),
+      Analytics.query()
         .whereIn('linkId', linkIds)
-        .where('createdAt', '>=', DateTime.now().startOf('day').toSQL()!)
+        .where('createdAt', '>=', DateTime.now().startOf('day').toSQL())
         .count('* as total')
         .first(),
-      LinkClick.query()
+      Analytics.query()
         .whereIn('linkId', linkIds)
-        .where('createdAt', '>=', DateTime.now().startOf('week').toSQL()!)
+        .where('createdAt', '>=', DateTime.now().startOf('week').toSQL())
         .count('* as total')
         .first(),
-      LinkClick.query()
+      Analytics.query()
         .whereIn('linkId', linkIds)
-        .where('createdAt', '>=', DateTime.now().startOf('month').toSQL()!)
+        .where('createdAt', '>=', DateTime.now().startOf('month').toSQL())
         .count('* as total')
         .first(),
     ])
@@ -75,10 +74,10 @@ export default class AnalyticsService {
     }
 
     const clicks = await db
-      .from('link_clicks')
+      .from('analytics')
       .whereIn('link_id', linkIds)
-      .where('created_at', '>=', startDate.toSQL()!)
-      .select(db.raw("DATE(created_at) as date"))
+      .where('created_at', '>=', startDate.toSQL())
+      .select(db.raw('DATE(created_at) as date'))
       .count('* as clicks')
       .groupByRaw('DATE(created_at)')
       .orderBy('date', 'asc')
@@ -98,7 +97,7 @@ export default class AnalyticsService {
     }
 
     const topLinks = await db
-      .from('link_clicks')
+      .from('analytics')
       .whereIn('link_id', linkIds)
       .select('link_id')
       .count('* as clicks')
@@ -133,7 +132,7 @@ export default class AnalyticsService {
     }
 
     const referrers = await db
-      .from('link_clicks')
+      .from('analytics')
       .whereIn('link_id', linkIds)
       .whereNotNull('referrer')
       .select('referrer')
@@ -157,7 +156,7 @@ export default class AnalyticsService {
     }
 
     const countries = await db
-      .from('link_clicks')
+      .from('analytics')
       .whereIn('link_id', linkIds)
       .whereNotNull('country')
       .select('country')
@@ -181,7 +180,7 @@ export default class AnalyticsService {
     }
 
     const devices = await db
-      .from('link_clicks')
+      .from('analytics')
       .whereIn('link_id', linkIds)
       .whereNotNull('device')
       .select('device')
@@ -204,7 +203,7 @@ export default class AnalyticsService {
     }
 
     const browsers = await db
-      .from('link_clicks')
+      .from('analytics')
       .whereIn('link_id', linkIds)
       .whereNotNull('browser')
       .select('browser')
@@ -224,17 +223,17 @@ export default class AnalyticsService {
     const startDate = DateTime.now().minus({ days })
 
     const [totalClicks, clicksByDay, referrers, countries, devices, browsers] = await Promise.all([
-      LinkClick.query().where('linkId', linkId).count('* as total').first(),
+      Analytics.query().where('linkId', linkId).count('* as total').first(),
       db
-        .from('link_clicks')
+        .from('analytics')
         .where('link_id', linkId)
-        .where('created_at', '>=', startDate.toSQL()!)
-        .select(db.raw("DATE(created_at) as date"))
+        .where('created_at', '>=', startDate.toSQL())
+        .select(db.raw('DATE(created_at) as date'))
         .count('* as clicks')
         .groupByRaw('DATE(created_at)')
         .orderBy('date', 'asc'),
       db
-        .from('link_clicks')
+        .from('analytics')
         .where('link_id', linkId)
         .whereNotNull('referrer')
         .select('referrer')
@@ -243,7 +242,7 @@ export default class AnalyticsService {
         .orderBy('clicks', 'desc')
         .limit(5),
       db
-        .from('link_clicks')
+        .from('analytics')
         .where('link_id', linkId)
         .whereNotNull('country')
         .select('country')
@@ -252,7 +251,7 @@ export default class AnalyticsService {
         .orderBy('clicks', 'desc')
         .limit(5),
       db
-        .from('link_clicks')
+        .from('analytics')
         .where('link_id', linkId)
         .whereNotNull('device')
         .select('device')
@@ -260,7 +259,7 @@ export default class AnalyticsService {
         .groupBy('device')
         .orderBy('clicks', 'desc'),
       db
-        .from('link_clicks')
+        .from('analytics')
         .where('link_id', linkId)
         .whereNotNull('browser')
         .select('browser')
