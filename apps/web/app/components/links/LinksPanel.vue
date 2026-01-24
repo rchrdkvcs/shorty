@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import type Link from "@shorty/api/app/models/link";
+import { useClipboard } from "@vueuse/core";
 
 const selectedLink = useState<Link | null>("selected-link", () => null);
+const toast = useToast();
+const { copy } = useClipboard();
 
 const { data: links, status } = useQuery<Link[]>({
   key: ["links"],
@@ -24,6 +27,26 @@ const getCardTitle = (link: Link) => {
   } catch {
     return link.targetUrl;
   }
+};
+
+const getShortUrl = (link: Link, slug: string) => {
+  if (import.meta.client) {
+    const baseUrl = link.domain 
+      ? `https://${link.domain.domain}` 
+      : globalThis.location.origin;
+    return `${baseUrl}/${slug}`;
+  }
+  return `/${slug}`;
+};
+
+const handleCopyUrl = async (link: Link, slug: string) => {
+  const url = getShortUrl(link, slug);
+  await copy(url);
+  toast.add({
+    title: "URL copiée",
+    description: `${url} a été copié dans le presse-papier.`,
+    color: "success",
+  });
 };
 </script>
 
@@ -91,6 +114,7 @@ const getCardTitle = (link: Link) => {
               variant="soft"
               color="neutral"
               size="sm"
+              @click="handleCopyUrl(link, link.slugCustom)"
             >
               /{{ link.slugCustom }}
             </UButton>
@@ -99,6 +123,7 @@ const getCardTitle = (link: Link) => {
               variant="soft"
               color="neutral"
               size="sm"
+              @click="handleCopyUrl(link, link.slugAuto)"
             >
               /{{ link.slugAuto }}
             </UButton>
