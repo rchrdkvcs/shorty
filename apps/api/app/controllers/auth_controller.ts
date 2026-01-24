@@ -43,7 +43,7 @@ export default class AuthController {
 
     await auth.use().login(user)
 
-    return response.redirect(env.get('APP_URL'))
+    return response.redirect(env.get('FRONTEND_URL'))
   }
 
   public async me({ auth }: HttpContext) {

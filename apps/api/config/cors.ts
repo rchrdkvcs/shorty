@@ -10,7 +10,7 @@ import env from '#start/env'
 const corsConfig = defineConfig({
   enabled: true,
   origin: (origin) => {
-    const allowedOrigins = [env.get('APP_URL', 'http://localhost:3000')]
+    const allowedOrigins = [env.get('FRONTEND_URL', 'http://localhost:3000')]
     return allowedOrigins.includes(origin || '')
   },
   methods: ['GET', 'HEAD', 'POST', 'PUT', 'DELETE'],

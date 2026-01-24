@@ -4,7 +4,6 @@ definePageMeta({
 });
 
 const toast = useToast();
-const apiUrl = process.env.NUXT_PUBLIC_API_URL;
 
 const providers = [
   {
@@ -12,7 +11,7 @@ const providers = [
     icon: "i-simple-icons-discord",
     size: "lg",
     onClick: () => {
-      navigateTo(`${apiUrl}//auth/discord/redirect`, {
+      navigateTo("/adonis/auth/discord/redirect", {
         external: true,
       });
     },
