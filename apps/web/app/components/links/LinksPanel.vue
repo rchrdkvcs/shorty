@@ -2,6 +2,7 @@
 import type Link from "@shorty/api/app/models/link";
 
 const selectedLink = useState<Link | null>("selected-link", () => null);
+const { copyShortUrl } = useCopyShortUrl();
 
 const { data: links, status } = useQuery<Link[]>({
   key: ["links"],
@@ -35,10 +36,10 @@ const getCardTitle = (link: Link) => {
 
     <template #body>
       <UPageGrid :class="selectedLink && 'grid-cols-2!'">
-        <UPageCard
+        <UCard
           v-for="link in links"
           :key="link.id"
-          variant="soft"
+          variant="subtle"
           class="group"
         >
           <div class="flex items-center justify-between gap-2">
@@ -75,7 +76,7 @@ const getCardTitle = (link: Link) => {
             </UFieldGroup>
           </div>
 
-          <div class="flex items-center justify-start gap-2 flex-wrap">
+          <div class="flex items-center justify-start gap-2 flex-wrap mt-3">
             <UBadge
               v-if="link.domain"
               variant="subtle"
@@ -91,6 +92,7 @@ const getCardTitle = (link: Link) => {
               variant="soft"
               color="neutral"
               size="sm"
+              @click="copyShortUrl(link, link.slugCustom)"
             >
               /{{ link.slugCustom }}
             </UButton>
@@ -99,11 +101,12 @@ const getCardTitle = (link: Link) => {
               variant="soft"
               color="neutral"
               size="sm"
+              @click="copyShortUrl(link, link.slugAuto)"
             >
               /{{ link.slugAuto }}
             </UButton>
           </div>
-        </UPageCard>
+        </UCard>
       </UPageGrid>
     </template>
   </UDashboardPanel>

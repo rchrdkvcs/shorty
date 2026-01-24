@@ -1,19 +1,26 @@
 <script setup lang="ts">
 import {
-  useAnalyticsOverviewQuery, useClicksByBrowserQuery, useClicksByDeviceQuery,
+  useAnalyticsOverviewQuery,
+  useClicksByBrowserQuery,
+  useClicksByDeviceQuery,
   useClicksByPeriodQuery,
   useClicksByReferrerQuery,
-  useTopLinksQuery
+  useTopLinksQuery,
 } from "~/queries/analytics";
 
 const days = ref(30);
 
-const { data: overview, status: overviewStatus } = useAnalyticsOverviewQuery(days);
-const { data: clicksByPeriod, status: clicksByPeriodStatus } = useClicksByPeriodQuery(days);
+const { data: overview, status: overviewStatus } =
+  useAnalyticsOverviewQuery(days);
+const { data: clicksByPeriod, status: clicksByPeriodStatus } =
+  useClicksByPeriodQuery(days);
 const { data: topLinks, status: topLinksStatus } = useTopLinksQuery(5);
-const { data: clicksByReferrer, status: clicksByReferrerStatus } = useClicksByReferrerQuery(5);
-const { data: clicksByDevice, status: clicksByDeviceStatus } = useClicksByDeviceQuery();
-const { data: clicksByBrowser, status: clicksByBrowserStatus } = useClicksByBrowserQuery();
+const { data: clicksByReferrer, status: clicksByReferrerStatus } =
+  useClicksByReferrerQuery(5);
+const { data: clicksByDevice, status: clicksByDeviceStatus } =
+  useClicksByDeviceQuery();
+const { data: clicksByBrowser, status: clicksByBrowserStatus } =
+  useClicksByBrowserQuery();
 
 const stats = computed(() => [
   {
@@ -69,28 +76,32 @@ const formatDate = (dateStr: string) => {
   <UDashboardPanel>
     <template #header>
       <UDashboardNavbar title="Analytics">
-        <template #actions>
-          <USelect v-model="days" :options="periodOptions" value-key="value" />
+        <template #right>
+          <USelect
+            v-model="days"
+            :items="periodOptions"
+            class="w-48 cursor-pointer"
+            icon="lucide:calendar"
+          />
         </template>
       </UDashboardNavbar>
     </template>
 
     <template #body>
-      <div class="space-y-6 p-4">
+      <div class="space-y-6">
         <!-- Stats Cards -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <UCard
-            v-for="stat in stats"
-            :key="stat.label"
-            variant="subtle"
-            class="p-4"
-          >
+          <UCard v-for="stat in stats" :key="stat.label" variant="subtle">
             <div class="flex items-center gap-3">
-              <div class="p-2 rounded-lg bg-primary/10">
-                <UIcon :name="stat.icon" class="w-5 h-5 text-primary" />
+              <div
+                class="rounded-md bg-primary/10 shrink-0 flex items-center justify-center p-2"
+              >
+                <UIcon :name="stat.icon" class="size-6 text-primary" />
               </div>
               <div>
-                <p class="text-2xl font-bold">{{ stat.value.toLocaleString() }}</p>
+                <p class="text-2xl font-bold">
+                  {{ stat.value.toLocaleString() }}
+                </p>
                 <p class="text-sm text-muted">{{ stat.label }}</p>
               </div>
             </div>
@@ -103,11 +114,20 @@ const formatDate = (dateStr: string) => {
             <h3 class="font-semibold">Clicks over time</h3>
           </template>
 
-          <div v-if="clicksByPeriodStatus === 'pending'" class="h-48 flex items-center justify-center">
-            <UIcon name="lucide:loader-2" class="w-6 h-6 animate-spin text-muted" />
+          <div
+            v-if="clicksByPeriodStatus === 'pending'"
+            class="h-48 flex items-center justify-center"
+          >
+            <UIcon
+              name="lucide:loader-2"
+              class="w-6 h-6 animate-spin text-muted"
+            />
           </div>
 
-          <div v-else-if="!clicksByPeriod?.length" class="h-48 flex items-center justify-center text-muted">
+          <div
+            v-else-if="!clicksByPeriod?.length"
+            class="h-48 flex items-center justify-center text-muted"
+          >
             No data available
           </div>
 
@@ -119,18 +139,25 @@ const formatDate = (dateStr: string) => {
                 class="flex-1 flex flex-col items-center justify-end h-full group"
               >
                 <div class="relative w-full flex justify-center mb-1">
-                  <span class="absolute -top-6 text-xs opacity-0 group-hover:opacity-100 transition-opacity bg-default px-1 rounded">
+                  <span
+                    class="absolute -top-6 text-xs opacity-0 group-hover:opacity-100 transition-opacity bg-default px-1 rounded"
+                  >
                     {{ item.clicks }}
                   </span>
                 </div>
                 <div
                   class="w-full max-w-8 bg-primary/60 hover:bg-primary rounded-t transition-all"
                   :style="{
-                    height: maxClicks > 0 ? `${(item.clicks / maxClicks) * 100}%` : '0%',
+                    height:
+                      maxClicks > 0
+                        ? `${(item.clicks / maxClicks) * 100}%`
+                        : '0%',
                     minHeight: item.clicks > 0 ? '4px' : '0px',
                   }"
                 />
-                <span class="text-[10px] text-muted mt-1 truncate w-full text-center">
+                <span
+                  class="text-[10px] text-muted mt-1 truncate w-full text-center"
+                >
                   {{ formatDate(item.date) }}
                 </span>
               </div>
@@ -150,7 +177,10 @@ const formatDate = (dateStr: string) => {
               <USkeleton v-for="i in 5" :key="i" class="h-12" />
             </div>
 
-            <div v-else-if="!topLinks?.length" class="text-center text-muted py-8">
+            <div
+              v-else-if="!topLinks?.length"
+              class="text-center text-muted py-8"
+            >
               No clicks recorded yet
             </div>
 
@@ -192,7 +222,10 @@ const formatDate = (dateStr: string) => {
               <USkeleton v-for="i in 5" :key="i" class="h-10" />
             </div>
 
-            <div v-else-if="!clicksByReferrer?.length" class="text-center text-muted py-8">
+            <div
+              v-else-if="!clicksByReferrer?.length"
+              class="text-center text-muted py-8"
+            >
               No referrer data available
             </div>
 
@@ -220,7 +253,10 @@ const formatDate = (dateStr: string) => {
               <USkeleton v-for="i in 3" :key="i" class="h-10" />
             </div>
 
-            <div v-else-if="!clicksByDevice?.length" class="text-center text-muted py-8">
+            <div
+              v-else-if="!clicksByDevice?.length"
+              class="text-center text-muted py-8"
+            >
               No device data available
             </div>
 
@@ -232,7 +268,9 @@ const formatDate = (dateStr: string) => {
               >
                 <div class="flex items-center justify-between text-sm">
                   <span>{{ device.device }}</span>
-                  <span class="font-semibold">{{ device.clicks.toLocaleString() }}</span>
+                  <span class="font-semibold">{{
+                    device.clicks.toLocaleString()
+                  }}</span>
                 </div>
                 <div class="h-2 bg-elevated rounded-full overflow-hidden">
                   <div
@@ -256,7 +294,10 @@ const formatDate = (dateStr: string) => {
               <USkeleton v-for="i in 3" :key="i" class="h-10" />
             </div>
 
-            <div v-else-if="!clicksByBrowser?.length" class="text-center text-muted py-8">
+            <div
+              v-else-if="!clicksByBrowser?.length"
+              class="text-center text-muted py-8"
+            >
               No browser data available
             </div>
 
@@ -268,7 +309,9 @@ const formatDate = (dateStr: string) => {
               >
                 <div class="flex items-center justify-between text-sm">
                   <span>{{ browser.browser }}</span>
-                  <span class="font-semibold">{{ browser.clicks.toLocaleString() }}</span>
+                  <span class="font-semibold">{{
+                    browser.clicks.toLocaleString()
+                  }}</span>
                 </div>
                 <div class="h-2 bg-elevated rounded-full overflow-hidden">
                   <div
