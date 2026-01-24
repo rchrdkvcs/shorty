@@ -1,9 +1,10 @@
 import { DateTime } from 'luxon'
-import { BaseModel, beforeCreate, belongsTo, column } from '@adonisjs/lucid/orm'
+import { BaseModel, beforeCreate, belongsTo, column, hasMany } from '@adonisjs/lucid/orm'
 import { ulid } from 'ulid'
 import User from '#models/user'
 import Domain from '#models/domain'
-import type { BelongsTo } from '@adonisjs/lucid/types/relations'
+import QrCode from '#models/qr_code'
+import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
 
 export default class Link extends BaseModel {
   @column({ isPrimary: true })
@@ -35,6 +36,9 @@ export default class Link extends BaseModel {
 
   @column()
   declare category: string | null
+
+  @hasMany(() => QrCode)
+  declare qrCodes: HasMany<typeof QrCode>
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime

@@ -2,11 +2,17 @@
 import type Link from "@shorty/api/app/models/link";
 import { useDeleteLinkMutation, useUpdateLinkMutation } from "~/queries/links";
 import { useVerifiedDomainsQuery, type Domain } from "~/queries/domains";
+import { useQrCodesByLinkQuery } from "~/queries/qr-codes";
 
 const selectedLink = useState<Link | null>("selected-link", () => null);
 const toast = useToast();
+const showQrCodeModal = ref(false);
 
 const { data: domains } = useVerifiedDomainsQuery();
+
+const { data: linkQrCodes } = useQrCodesByLinkQuery(
+  computed(() => selectedLink.value?.id || "")
+);
 
 const currentHost = computed(() => {
   if (import.meta.client) {
@@ -80,6 +86,23 @@ const appBaseUrl = computed(() => {
   return "";
 });
 
+const linkUrl = computed(() => {
+  if (!selectedLink.value) return "";
+
+  const domain = selectedLink.value.domain?.domain;
+  const slug = selectedLink.value.slugCustom || selectedLink.value.slugAuto;
+
+  if (domain) {
+    return `https://${domain}/${slug}`;
+  }
+
+  if (import.meta.client) {
+    return `${globalThis.location.origin}/r/${slug}`;
+  }
+
+  return `/r/${slug}`;
+});
+
 const getCardTitle = (link: Link) => {
   if (link.label) return link.label;
   try {
@@ -141,6 +164,15 @@ const handleDelete = async () => {
 };
 
 const isLoading = computed(() => isUpdating.value || isDeleting.value);
+
+const handleQrCodeCreated = () => {
+  showQrCodeModal.value = false;
+  toast.add({
+    title: "QR Code créé",
+    description: "Le QR code a été créé avec succès.",
+    color: "success",
+  });
+};
 </script>
 
 <template>
@@ -178,6 +210,30 @@ const isLoading = computed(() => isUpdating.value || isDeleting.value);
           </UButton>
           <UButton icon="lucide:copy" variant="soft" color="neutral" size="sm">
             /{{ selectedLink.slugAuto }}
+          </UButton>
+        </div>
+      </UFormField>
+
+      <UFormField label="QR Codes">
+        <div class="flex flex-col gap-2">
+          <div v-if="linkQrCodes && linkQrCodes.length > 0" class="flex flex-wrap gap-2">
+            <UBadge
+              v-for="qrCode in linkQrCodes"
+              :key="qrCode.id"
+              :label="qrCode.name"
+              color="blue"
+              variant="subtle"
+              size="sm"
+            />
+          </div>
+          <UButton
+            icon="lucide:qr-code"
+            variant="soft"
+            color="primary"
+            size="sm"
+            @click="showQrCodeModal = true"
+          >
+            {{ linkQrCodes && linkQrCodes.length > 0 ? 'Gérer les QR Codes' : 'Créer un QR Code' }}
           </UButton>
         </div>
       </UFormField>
@@ -270,5 +326,29 @@ const isLoading = computed(() => isUpdating.value || isDeleting.value);
         />
       </UFieldGroup>
     </template>
+
+    <!-- QR Code Modal -->
+    <UModal v-model:open="showQrCodeModal">
+      <UCard>
+        <template #header>
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-semibold">QR Code pour ce lien</h3>
+            <UButton
+              icon="lucide:x"
+              color="gray"
+              variant="ghost"
+              @click="showQrCodeModal = false"
+            />
+          </div>
+        </template>
+
+        <QrCodeCustomizer
+          v-if="selectedLink"
+          :link-id="selectedLink.id"
+          :url="linkUrl"
+          @saved="handleQrCodeCreated"
+        />
+      </UCard>
+    </UModal>
   </UDashboardPanel>
 </template>

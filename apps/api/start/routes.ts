@@ -14,6 +14,7 @@ const AuthController = () => import('#controllers/auth_controller')
 const LinksController = () => import('#controllers/links_controller')
 const AnalyticsController = () => import('#controllers/analytics_controller')
 const DomainsController = () => import('#controllers/domains_controller')
+const QrCodesController = () => import('#controllers/qr_codes_controller')
 
 router
   .group(() => {
@@ -44,6 +45,19 @@ router
     router.post('/:id/verify', [DomainsController, 'verify'])
   })
   .prefix('domains')
+  .use(middleware.auth())
+
+// QR Codes routes (auth required)
+router
+  .group(() => {
+    router.get('/', [QrCodesController, 'index'])
+    router.post('/', [QrCodesController, 'store'])
+    router.get('/:id', [QrCodesController, 'show'])
+    router.patch('/:id', [QrCodesController, 'update'])
+    router.delete('/:id', [QrCodesController, 'destroy'])
+    router.get('/link/:linkId', [QrCodesController, 'getByLinkId'])
+  })
+  .prefix('qr-codes')
   .use(middleware.auth())
 
 // Analytics routes (auth required)
