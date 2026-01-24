@@ -1,3 +1,173 @@
+<script setup lang="ts">
+import QRCode from "qrcode";
+import {
+  useCreateQrCodeMutation,
+  useDeleteQrCodeMutation,
+  useUpdateQrCodeMutation,
+} from "~/queries/qr-codes";
+
+const props = defineProps<{
+  linkId: string;
+  url: string;
+  qrCodeId?: string;
+  initialData?: {
+    name: string;
+    foregroundColor: string;
+    backgroundColor: string;
+    logoUrl: string | null;
+    size: number;
+    errorCorrectionLevel: "L" | "M" | "Q" | "H";
+    logoSize: number | null;
+    roundedCorners: boolean;
+  };
+}>();
+
+const emit = defineEmits<{
+  saved: [];
+  updated: [];
+  deleted: [];
+}>();
+
+const qrGenerator = ref<any>(null);
+const isSaving = ref(false);
+const isDeleting = ref(false);
+
+const isEditMode = computed(() => !!props.qrCodeId);
+
+const formData = reactive({
+  name: props.initialData?.name || "",
+  foregroundColor: props.initialData?.foregroundColor || "#000000",
+  backgroundColor: props.initialData?.backgroundColor || "#ffffff",
+  logoUrl: props.initialData?.logoUrl || "",
+  size: props.initialData?.size || 300,
+  errorCorrectionLevel:
+    props.initialData?.errorCorrectionLevel || ("M" as "L" | "M" | "Q" | "H"),
+  logoSize: props.initialData?.logoSize || 50,
+  roundedCorners: props.initialData?.roundedCorners || false,
+});
+
+const createMutation = useCreateQrCodeMutation();
+const updateMutation = useUpdateQrCodeMutation();
+const deleteMutation = useDeleteQrCodeMutation();
+
+const saveQrCode = async () => {
+  if (!formData.name) {
+    alert("Veuillez entrer un nom pour le QR code");
+    return;
+  }
+
+  isSaving.value = true;
+  try {
+    await createMutation.mutateAsync({
+      linkId: props.linkId,
+      name: formData.name,
+      foregroundColor: formData.foregroundColor,
+      backgroundColor: formData.backgroundColor,
+      logoUrl: formData.logoUrl || null,
+      size: formData.size,
+      errorCorrectionLevel: formData.errorCorrectionLevel,
+      logoSize: formData.logoSize,
+      roundedCorners: formData.roundedCorners,
+    });
+    emit("saved");
+  } catch (error) {
+    console.error("Error saving QR code:", error);
+    alert("Erreur lors de l'enregistrement du QR code");
+  } finally {
+    isSaving.value = false;
+  }
+};
+
+const updateQrCode = async () => {
+  if (!props.qrCodeId || !formData.name) {
+    alert("Veuillez entrer un nom pour le QR code");
+    return;
+  }
+
+  isSaving.value = true;
+  try {
+    await updateMutation.mutateAsync({
+      id: props.qrCodeId,
+      name: formData.name,
+      foregroundColor: formData.foregroundColor,
+      backgroundColor: formData.backgroundColor,
+      logoUrl: formData.logoUrl || null,
+      size: formData.size,
+      errorCorrectionLevel: formData.errorCorrectionLevel,
+      logoSize: formData.logoSize,
+      roundedCorners: formData.roundedCorners,
+    });
+    emit("updated");
+  } catch (error) {
+    console.error("Error updating QR code:", error);
+    alert("Erreur lors de la mise à jour du QR code");
+  } finally {
+    isSaving.value = false;
+  }
+};
+
+const deleteQrCode = async () => {
+  if (!props.qrCodeId) return;
+
+  if (!confirm("Êtes-vous sûr de vouloir supprimer ce QR code ?")) {
+    return;
+  }
+
+  isDeleting.value = true;
+  try {
+    await deleteMutation.mutateAsync(props.qrCodeId);
+    emit("deleted");
+  } catch (error) {
+    console.error("Error deleting QR code:", error);
+    alert("Erreur lors de la suppression du QR code");
+  } finally {
+    isDeleting.value = false;
+  }
+};
+
+const downloadQrCode = async () => {
+  if (!qrGenerator.value?.canvas) return;
+
+  try {
+    const canvas = qrGenerator.value.canvas as HTMLCanvasElement;
+    const dataUrl = canvas.toDataURL("image/png");
+    const link = document.createElement("a");
+    link.download = `qr-code-${formData.name || "download"}.png`;
+    link.href = dataUrl;
+    link.click();
+  } catch (error) {
+    console.error("Error downloading QR code:", error);
+    alert("Erreur lors du téléchargement du QR code");
+  }
+};
+
+const downloadQrCodeSvg = async () => {
+  try {
+    const svg = await QRCode.toString(props.url, {
+      type: "svg",
+      errorCorrectionLevel: formData.errorCorrectionLevel,
+      color: {
+        dark: formData.foregroundColor,
+        light: formData.backgroundColor,
+      },
+      margin: 1,
+      width: formData.size,
+    });
+
+    const blob = new Blob([svg], { type: "image/svg+xml" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.download = `qr-code-${formData.name || "download"}.svg`;
+    link.href = url;
+    link.click();
+    URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error("Error downloading SVG:", error);
+    alert("Erreur lors du téléchargement du SVG");
+  }
+};
+</script>
+
 <template>
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
     <!-- QR Code Preview -->
@@ -52,10 +222,7 @@
         <div class="flex flex-col gap-4">
           <!-- Name -->
           <UFormField label="Nom du QR Code" name="name" required>
-            <UInput
-              v-model="formData.name"
-              placeholder="Mon QR Code"
-            />
+            <UInput v-model="formData.name" placeholder="Mon QR Code" />
           </UFormField>
 
           <!-- Colors -->
@@ -186,167 +353,3 @@
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import QRCode from 'qrcode'
-
-const props = defineProps<{
-  linkId: string
-  url: string
-  qrCodeId?: string
-  initialData?: {
-    name: string
-    foregroundColor: string
-    backgroundColor: string
-    logoUrl: string | null
-    size: number
-    errorCorrectionLevel: 'L' | 'M' | 'Q' | 'H'
-    logoSize: number | null
-    roundedCorners: boolean
-  }
-}>()
-
-const emit = defineEmits<{
-  saved: []
-  updated: []
-  deleted: []
-}>()
-
-const qrGenerator = ref<any>(null)
-const isSaving = ref(false)
-const isDeleting = ref(false)
-
-const isEditMode = computed(() => !!props.qrCodeId)
-
-const formData = reactive({
-  name: props.initialData?.name || '',
-  foregroundColor: props.initialData?.foregroundColor || '#000000',
-  backgroundColor: props.initialData?.backgroundColor || '#ffffff',
-  logoUrl: props.initialData?.logoUrl || '',
-  size: props.initialData?.size || 300,
-  errorCorrectionLevel: props.initialData?.errorCorrectionLevel || 'M' as 'L' | 'M' | 'Q' | 'H',
-  logoSize: props.initialData?.logoSize || 50,
-  roundedCorners: props.initialData?.roundedCorners || false,
-})
-
-const createMutation = useCreateQrCodeMutation()
-const updateMutation = useUpdateQrCodeMutation()
-const deleteMutation = useDeleteQrCodeMutation()
-
-const saveQrCode = async () => {
-  if (!formData.name) {
-    alert('Veuillez entrer un nom pour le QR code')
-    return
-  }
-
-  isSaving.value = true
-  try {
-    await createMutation.mutateAsync({
-      linkId: props.linkId,
-      name: formData.name,
-      foregroundColor: formData.foregroundColor,
-      backgroundColor: formData.backgroundColor,
-      logoUrl: formData.logoUrl || null,
-      size: formData.size,
-      errorCorrectionLevel: formData.errorCorrectionLevel,
-      logoSize: formData.logoSize,
-      roundedCorners: formData.roundedCorners,
-    })
-    emit('saved')
-  } catch (error) {
-    console.error('Error saving QR code:', error)
-    alert('Erreur lors de l\'enregistrement du QR code')
-  } finally {
-    isSaving.value = false
-  }
-}
-
-const updateQrCode = async () => {
-  if (!props.qrCodeId || !formData.name) {
-    alert('Veuillez entrer un nom pour le QR code')
-    return
-  }
-
-  isSaving.value = true
-  try {
-    await updateMutation.mutateAsync({
-      id: props.qrCodeId,
-      name: formData.name,
-      foregroundColor: formData.foregroundColor,
-      backgroundColor: formData.backgroundColor,
-      logoUrl: formData.logoUrl || null,
-      size: formData.size,
-      errorCorrectionLevel: formData.errorCorrectionLevel,
-      logoSize: formData.logoSize,
-      roundedCorners: formData.roundedCorners,
-    })
-    emit('updated')
-  } catch (error) {
-    console.error('Error updating QR code:', error)
-    alert('Erreur lors de la mise à jour du QR code')
-  } finally {
-    isSaving.value = false
-  }
-}
-
-const deleteQrCode = async () => {
-  if (!props.qrCodeId) return
-
-  if (!confirm('Êtes-vous sûr de vouloir supprimer ce QR code ?')) {
-    return
-  }
-
-  isDeleting.value = true
-  try {
-    await deleteMutation.mutateAsync(props.qrCodeId)
-    emit('deleted')
-  } catch (error) {
-    console.error('Error deleting QR code:', error)
-    alert('Erreur lors de la suppression du QR code')
-  } finally {
-    isDeleting.value = false
-  }
-}
-
-const downloadQrCode = async () => {
-  if (!qrGenerator.value?.canvas) return
-
-  try {
-    const canvas = qrGenerator.value.canvas as HTMLCanvasElement
-    const dataUrl = canvas.toDataURL('image/png')
-    const link = document.createElement('a')
-    link.download = `qr-code-${formData.name || 'download'}.png`
-    link.href = dataUrl
-    link.click()
-  } catch (error) {
-    console.error('Error downloading QR code:', error)
-    alert('Erreur lors du téléchargement du QR code')
-  }
-}
-
-const downloadQrCodeSvg = async () => {
-  try {
-    const svg = await QRCode.toString(props.url, {
-      type: 'svg',
-      errorCorrectionLevel: formData.errorCorrectionLevel,
-      color: {
-        dark: formData.foregroundColor,
-        light: formData.backgroundColor,
-      },
-      margin: 1,
-      width: formData.size,
-    })
-
-    const blob = new Blob([svg], { type: 'image/svg+xml' })
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.download = `qr-code-${formData.name || 'download'}.svg`
-    link.href = url
-    link.click()
-    URL.revokeObjectURL(url)
-  } catch (error) {
-    console.error('Error downloading SVG:', error)
-    alert('Erreur lors du téléchargement du SVG')
-  }
-}
-</script>

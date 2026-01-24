@@ -61,10 +61,11 @@ export const useQrCodesQuery = () => {
   });
 };
 
-export const useQrCodeQuery = (id: MaybeRefOrGetter<string>) => {
+export const useQrCodeQuery = (id: MaybeRefOrGetter<string | null>) => {
   return useQuery({
-    key: () => QR_CODE_QUERY_KEYS.detail(toValue(id)),
+    key: () => QR_CODE_QUERY_KEYS.detail(toValue(id) ?? ''),
     query: () => useApi<QrCode>(`/qr-codes/${toValue(id)}`),
+    enabled: () => !!toValue(id),
   });
 };
 
