@@ -18,7 +18,7 @@ const currentHost = computed(() => {
 
 const domainOptions = computed(() => {
   const options: Array<{ label: string; value: string }> = [
-    { label: `${currentHost.value} (default)`, value: "" }
+    { label: `${currentHost.value} (default)`, value: "default" }
   ];
   if (domains.value) {
     domains.value.forEach((domain: Domain) => {
@@ -32,7 +32,7 @@ const domainOptions = computed(() => {
 const selectedDomainOption = computed({
   get: () => domainOptions.value.find(opt => opt.value === form.domainId) || domainOptions.value[0],
   set: (val) => {
-    form.domainId = val?.value ?? "";
+    form.domainId = val?.value ?? "default";
   }
 });
 
@@ -46,7 +46,7 @@ const form = reactive({
   label: "",
   category: "",
   slugCustom: "",
-  domainId: "",
+  domainId: "default",
 });
 
 watch(
@@ -57,14 +57,14 @@ watch(
       form.label = link.label ?? "";
       form.category = link.category ?? "";
       form.slugCustom = link.slugCustom ?? "";
-      form.domainId = link.domainId ?? "";
+      form.domainId = link.domainId ?? "default";
     }
   },
   { immediate: true },
 );
 
 const selectedDomainName = computed(() => {
-  if (form.domainId && domains.value) {
+  if (form.domainId && form.domainId !== "default" && domains.value) {
     const domain = domains.value.find((d: Domain) => d.id === form.domainId);
     return domain ? `https://${domain.domain}` : "";
   }
@@ -100,7 +100,7 @@ const handleSave = async () => {
       label: form.label || null,
       category: form.category || null,
       slugCustom: form.slugCustom || null,
-      domainId: form.domainId || null,
+      domainId: form.domainId === "default" ? null : form.domainId,
     });
 
     toast.add({

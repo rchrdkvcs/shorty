@@ -6,29 +6,27 @@ const open = defineModel<boolean>("open", { default: true });
 const domain = ref("");
 const queryCache = useQueryCache();
 
-const { mutate, isLoading, error } = useCreateDomainMutation();
+const { mutateAsync, isLoading, error } = useCreateDomainMutation();
 
 const closeModal = () => {
   open.value = false;
 };
 
-const handleSubmit = () => {
+const handleSubmit = async () => {
   if (!domain.value) return;
-  mutate(
-    { domain: domain.value },
-    {
-      onSuccess: () => {
-        domain.value = "";
-        queryCache.invalidateQueries({ key: ["domains"] });
-        closeModal();
-      },
-    }
-  );
+  try {
+    await mutateAsync({ domain: domain.value });
+    domain.value = "";
+    queryCache.invalidateQueries({ key: ["domains"] });
+    closeModal();
+  } catch {
+    // Error is handled by the mutation's error state
+  }
 };
 </script>
 
 <template>
-  <UModal v-model:open="open" class="max-w-lg w-full">
+  <UModal v-model:open="open" title="Add Custom Domain" description="Add your own domain for shortened links" class="max-w-lg w-full">
     <template #content>
       <UCard>
         <template #header>

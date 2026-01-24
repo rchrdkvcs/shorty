@@ -4,7 +4,7 @@ import { useVerifiedDomainsQuery, type Domain } from "~/queries/domains";
 const open = defineModel<boolean>("open", { default: true });
 
 const newLink = ref("");
-const selectedDomainId = ref<string>("");
+const selectedDomainId = ref<string>("default");
 const slugCustom = ref("");
 const label = ref("");
 const showAdvanced = ref(false);
@@ -21,7 +21,7 @@ const currentHost = computed(() => {
 
 const domainOptions = computed(() => {
   const options: Array<{ label: string; value: string }> = [
-    { label: `${currentHost.value} (default)`, value: "" }
+    { label: `${currentHost.value} (default)`, value: "default" }
   ];
   if (domains.value) {
     domains.value.forEach((domain: Domain) => {
@@ -29,14 +29,13 @@ const domainOptions = computed(() => {
     });
   }
   return options;
-
 });
 
 // Computed for USelect binding (needs object, not just value)
 const selectedDomainOption = computed({
   get: () => domainOptions.value.find(opt => opt.value === selectedDomainId.value) || domainOptions.value[0],
   set: (val) => {
-    selectedDomainId.value = val?.value ?? "";
+    selectedDomainId.value = val?.value ?? "default";
   }
 });
 
@@ -54,7 +53,7 @@ const { mutate, isLoading, error } = useMutation({
   },
   onSuccess: () => {
     newLink.value = "";
-    selectedDomainId.value = "";
+    selectedDomainId.value = "default";
     slugCustom.value = "";
     label.value = "";
     showAdvanced.value = false;
@@ -67,7 +66,7 @@ const handleSubmit = () => {
   if (!newLink.value) return;
   mutate({
     targetUrl: newLink.value,
-    domainId: selectedDomainId.value || null,
+    domainId: selectedDomainId.value === "default" ? null : selectedDomainId.value,
     slugCustom: slugCustom.value || null,
     label: label.value || null,
   });
@@ -79,7 +78,7 @@ const closeModal = () => {
 </script>
 
 <template>
-  <UModal v-model:open="open" class="max-w-xl w-full">
+  <UModal v-model:open="open" title="Add Link" description="Create a new shortened link" class="max-w-xl w-full">
     <template #content>
       <UCard>
         <template #header>

@@ -9,7 +9,16 @@ import AddDomainModal from "~/components/modals/AddDomainModal.vue";
 import { useClipboard } from "@vueuse/core";
 
 const { data: domains, status } = useDomainsQuery();
-const { copy, copied } = useClipboard();
+const { copy } = useClipboard();
+const copiedField = ref<string | null>(null);
+
+const copyField = async (field: string, value: string) => {
+  await copy(value);
+  copiedField.value = field;
+  setTimeout(() => {
+    copiedField.value = null;
+  }, 2000);
+};
 
 const selectedDomain = ref<Domain | null>(null);
 
@@ -160,10 +169,10 @@ const formatDate = (dateStr: string) => {
                 <span class="text-muted">Type:</span>
                 <code class="bg-default px-2 py-0.5 rounded">TXT</code>
                 <UButton
-                  :icon="copied ? 'lucide:check-circle' : 'lucide:copy'"
+                  :icon="copiedField === 'type' ? 'lucide:check-circle' : 'lucide:copy'"
                   variant="ghost"
                   size="sm"
-                  @click="copy('TXT')"
+                  @click="copyField('type', 'TXT')"
                 />
               </div>
               <div class="flex items-center text-sm gap-2">
@@ -172,10 +181,10 @@ const formatDate = (dateStr: string) => {
                   >_shorty-verification</code
                 >
                 <UButton
-                  :icon="copied ? 'lucide:check-circle' : 'lucide:copy'"
+                  :icon="copiedField === 'host' ? 'lucide:check-circle' : 'lucide:copy'"
                   variant="ghost"
                   size="sm"
-                  @click="copy('_shorty-verification')"
+                  @click="copyField('host', '_shorty-verification')"
                 />
               </div>
               <div class="flex items-center text-sm gap-2">
@@ -184,10 +193,10 @@ const formatDate = (dateStr: string) => {
                   shorty-verify={{ domain.verificationToken }}
                 </code>
                 <UButton
-                  :icon="copied ? 'lucide:check-circle' : 'lucide:copy'"
+                  :icon="copiedField === 'value' ? 'lucide:check-circle' : 'lucide:copy'"
                   variant="ghost"
                   size="sm"
-                  @click="copy(`shorty-verify=${domain.verificationToken}`)"
+                  @click="copyField('value', `shorty-verify=${domain.verificationToken}`)"
                 />
               </div>
             </div>
