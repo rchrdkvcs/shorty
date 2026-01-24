@@ -2,6 +2,7 @@ import type { HttpContext } from '@adonisjs/core/http'
 import { inject } from '@adonisjs/core'
 import AuthService from '#services/auth_service'
 import User from '#models/user'
+import env from '#start/env'
 
 @inject()
 export default class AuthController {
@@ -42,7 +43,7 @@ export default class AuthController {
 
     await auth.use().login(user)
 
-    return response.redirect('http://localhost:3000')
+    return response.redirect(env.get('APP_URL'))
   }
 
   public async me({ auth }: HttpContext) {
