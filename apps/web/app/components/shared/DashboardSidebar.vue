@@ -19,35 +19,9 @@ const items = ref<NavigationMenuItem>([
     to: "/links",
   },
   {
-    label: "QR Codes",
-    icon: "lucide:qr-code",
-    to: "/qrcodes",
-  },
-  {
     label: "Domains",
     icon: "lucide:globe",
     to: "/domains",
-  },
-  {
-    label: "Shared with me",
-    icon: "lucide:users",
-    to: "/shared",
-  },
-  {
-    label: "Settings",
-    icon: "i-lucide-settings",
-    defaultOpen: true,
-    children: [
-      {
-        label: "General",
-      },
-      {
-        label: "Members",
-      },
-      {
-        label: "Notifications",
-      },
-    ],
   },
 ]);
 const authStore = useAuthStore();
@@ -59,7 +33,7 @@ const quickModal = overlay.create(QuickAddModal);
   <UDashboardSidebar>
     <template #default>
       <UButton
-        label="Quick add link"
+        label="New link"
         icon="i-lucide-plus"
         color="neutral"
         variant="subtle"
