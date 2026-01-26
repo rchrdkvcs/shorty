@@ -19,14 +19,6 @@ export default defineNuxtConfig({
     },
   },
 
-  routeRules: {
-    "/": { prerender: true },
-    "/adonis/**": {
-      proxy:
-        (process.env.NUXT_PUBLIC_API_URL || "http://localhost:3333") + "/**",
-    },
-  },
-
   icon: {
     serverBundle: "remote",
     mode: "css",

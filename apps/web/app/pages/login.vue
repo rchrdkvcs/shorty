@@ -3,7 +3,7 @@ definePageMeta({
   layout: false,
 });
 
-const toast = useToast();
+const config = useRuntimeConfig();
 
 const providers = [
   {
@@ -11,7 +11,7 @@ const providers = [
     icon: "i-simple-icons-discord",
     size: "lg",
     onClick: () => {
-      navigateTo("/adonis/auth/discord/redirect", {
+      navigateTo(config.public.apiUrl + "/auth/discord/redirect", {
         external: true,
       });
     },
@@ -21,7 +21,9 @@ const providers = [
     icon: "i-simple-icons-google",
     size: "lg",
     onClick: () => {
-      toast.add({ title: "Google", description: "Login with Google" });
+      navigateTo(config.public.apiUrl + "/auth/google/redirect", {
+        external: true,
+      });
     },
   },
   {
@@ -29,7 +31,9 @@ const providers = [
     icon: "i-simple-icons-github",
     size: "lg",
     onClick: () => {
-      toast.add({ title: "GitHub", description: "Login with GitHub" });
+      navigateTo(config.public.apiUrl + "/auth/github/redirect", {
+        external: true,
+      });
     },
   },
 ];
