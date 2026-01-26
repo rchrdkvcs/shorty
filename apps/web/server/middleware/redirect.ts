@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
     "/assets",
   ];
 
-  const ignoredRoutes = ["/", "/links", "/login"];
+  const ignoredRoutes = ["/", "/links", "/login", "/analytics", "/domains"];
 
   // Skip if path starts with ignored prefix
   if (ignoredPrefixes.some((prefix) => path.startsWith(prefix))) {
@@ -31,7 +31,8 @@ export default defineEventHandler(async (event) => {
     return;
   }
 
-  const apiUrl = process.env.NUXT_PUBLIC_API_URL || "http://localhost:3333";
+  const config = useRuntimeConfig(event);
+  const apiUrl = config.public.apiUrl || "http://localhost:3333";
 
   try {
     const link = await $fetch<{ targetUrl: string }>(`${apiUrl}/r/${slug}`);
