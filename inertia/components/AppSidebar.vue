@@ -19,6 +19,11 @@ const navigationItems = ref<NavigationMenuItem[]>([
       icon: 'lucide:link',
       to: '/dashboard/links',
     },
+    {
+      label: 'Analytics',
+      icon: 'lucide:bar-chart-3',
+      to: '/dashboard/analytics',
+    },
   ],
 ])
 const { organizations, currentOrganization, switchOrganization } = useOrganization()

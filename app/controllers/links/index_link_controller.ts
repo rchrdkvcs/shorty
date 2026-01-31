@@ -19,7 +19,8 @@ export default class IndexLinkController {
 
     // Si l'utilisateur n'a pas d'organisation, créer une organisation Personal
     if (userOrganizations.length === 0) {
-      const Organization = (await import('#models/organization')).default
+      const OrganizationModule = await import('#models/organization')
+      const Organization = OrganizationModule.default
       const personalOrganization = await Organization.create({
         name: 'Personal',
         description: 'Organisation personnelle',

@@ -34,7 +34,7 @@ export default class ResolveLinkController {
     const userAgent = request.header('user-agent') || ''
     const referrer = request.header('referer') || null
     const ipAddress = request.ip()
-    
+
     // Track the click asynchronously
     this.analyticsService
       .recordClick({
