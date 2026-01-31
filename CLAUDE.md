@@ -48,6 +48,7 @@ Shorty is a URL shortening service built with AdonisJS 6, Vue 3, and Inertia.js.
 - **Link**: Core URL shortening functionality with auto/custom slugs
 - **Domain**: Custom domain management for organizations
 - **Organization**: Multi-tenant support
+- **Analytics**: Click tracking and analytics data for links
 
 ### Directory Structure
 
@@ -83,6 +84,12 @@ The project uses import aliases defined in package.json:
 - **QR Code Generation**: Built-in QR code creation for links
 - **Authentication**: User registration and login
 - **Multi-platform URLs**: iOS, Android, and fallback URL support
+- **Analytics**: Comprehensive click tracking with device, browser, and referrer data
+  - Overview statistics (total clicks, links, today, this week)
+  - Clicks over time visualization
+  - Top performing links
+  - Traffic sources analysis
+  - Device and browser breakdown
 
 ### Frontend Architecture
 
