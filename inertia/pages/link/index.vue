@@ -1,199 +1,173 @@
 <script setup lang="ts">
 import type Link from '#models/link'
-import type { BreadcrumbItem, TableColumn } from '@nuxt/ui'
 import { ref } from 'vue'
-import { h, resolveComponent } from 'vue'
+import { router } from '@inertiajs/vue3'
+import { useFavicon } from '~/composables/use_favicon'
 import { useLink } from '~/composables/use_link'
-import LinkAddModal from '~/components/LinkAddModal.vue'
-import LinkEditModal from '~/components/LinkEditModal.vue'
-import LinkQrcode from '~/components/LinkQrcode.vue'
 
-defineProps<{
+const props = defineProps<{
   links: Link[]
   availableDomains: any[]
   organizations: any[]
 }>()
 
-const overlay = useOverlay()
-const createLink = overlay.create(LinkAddModal)
-const editLink = overlay.create(LinkEditModal)
-const qrCode = overlay.create(LinkQrcode)
+const selectedLink = ref<Link | null>(null)
+const { copyToClipboard } = useLink()
 
-const { copyToClipboard, getCopyButtonProps, getQRCodeData, getLinkCategory } = useLink()
+const formatDate = (dateStr: string) => {
+  if (!dateStr) return ''
+  return new Date(dateStr).toLocaleDateString('fr-FR', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  })
+}
 
-const UButton = resolveComponent('UButton')
-const UBadge = resolveComponent('UBadge')
-const UDropdownMenu = resolveComponent('UDropdownMenu')
+const getCardTitle = (link: Link) => {
+  if (link.name) return link.name
+  try {
+    return new URL(link.targetUrl).hostname
+  } catch {
+    return link.targetUrl
+  }
+}
 
-const breadcrumbItems = ref<BreadcrumbItem[]>([
-  {
-    label: 'Dashboard',
-  },
-  {
-    label: 'Mes liens',
-    to: '/components',
-  },
-])
-
-const columns: TableColumn<Link>[] = [
-  {
-    accessorKey: 'name',
-    header: 'Nom',
-  },
-  {
-    accessorKey: 'slugAuto',
-    header: 'Lien court',
-    cell: ({ row }) => {
-      const link = row.original as Link
-      const buttonProps = getCopyButtonProps(link)
-
-      return h(UButton, {
-        ...buttonProps,
-        onClick: () => copyToClipboard(link),
-      })
-    },
-  },
-  {
-    accessorKey: 'targetUrl',
-    header: 'Destination',
-    cell: ({ row }) => {
-      const link = row.original as Link
-      return h(UButton, {
-        color: 'neutral',
-        variant: 'soft',
-        size: 'sm',
-        label: link.targetUrl,
-        icon: 'lucide:external-link',
-        to: link.targetUrl,
-        target: '_blank',
-        class: 'text-wrap',
-      })
-    },
-  },
-  {
-    accessorKey: 'category',
-    header: 'Catégorie',
-    cell: ({ row }) => {
-      const link = row.original as Link
-      return h('span', { class: 'text-muted' }, getLinkCategory(link))
-    },
-  },
-  {
-    accessorKey: 'tags',
-    header: 'Tags',
-    cell: ({ row }) => {
-      const link = row.original as Link
-      return h(
-        'div',
-        { class: 'flex flex-wrap gap-2' },
-        link.tags && link.tags.length > 0
-          ? link.tags.map((tag: string) =>
-              h(UBadge, {
-                key: tag,
-                color: 'neutral',
-                variant: 'subtle',
-                class: 'text-xs rounded-full mr-1',
-                label: tag,
-              })
-            )
-          : h('span', { class: 'text-muted' }, 'Aucun tag')
-      )
-    },
-  },
-  {
-    header: 'QR Code',
-    cell: ({ row }) => {
-      const link = row.original as Link
-      const qrData = getQRCodeData(link)
-
-      return h(UButton, {
-        color: 'neutral',
-        variant: 'soft',
-        size: 'sm',
-        icon: 'lucide:qr-code',
-        onClick: () => qrCode.open(qrData),
-      })
-    },
-  },
-  {
-    id: 'actions',
-    cell: ({ row }) => {
-      return h(
-        'div',
-        { class: 'text-right' },
-        h(
-          UDropdownMenu,
-          {
-            'content': {
-              align: 'end',
-            },
-            'items': getRowItems(row),
-            'aria-label': 'Actions dropdown',
-          },
-          () =>
-            h(UButton, {
-              'icon': 'i-lucide-ellipsis-vertical',
-              'color': 'neutral',
-              'variant': 'ghost',
-              'class': 'ml-auto',
-              'aria-label': 'Actions dropdown',
-            })
-        )
-      )
-    },
-  },
-]
-
-function getRowItems(row: any) {
-  const link = row.original as Link
-  return [
-    {
-      label: 'Modifier',
-      icon: 'lucide:edit',
-      onClick: () => {
-        editLink.open({ link })
-      },
-    },
-    {
-      label: 'Supprimer',
-      icon: 'lucide:trash',
-      color: 'error',
-    },
-  ]
+const copyShortUrl = async (link: Link, slug: string) => {
+  await copyToClipboard(link)
 }
 </script>
 
 <template>
-  <div>
-    <div class="h-16 w-full p-4 border-b border-default flex items-center gap-2">
-      <UButton color="neutral" variant="ghost" icon="lucide:panel-left" />
-      <UBreadcrumb :items="breadcrumbItems" class="" />
-    </div>
+  <UDashboardPanel>
+    <template #header>
+      <UDashboardNavbar title="My Links" />
+    </template>
 
-    <div class="flex flex-col gap-8 p-8">
-      <div class="flex items-center justify-between">
-        <div>
-          <h1 class="text-3xl font-semibold">Mes liens</h1>
-          <p class="text-muted">Gérez vos liens raccourcis et suivez leurs performances</p>
-        </div>
-        <UButton icon="lucide:plus" label="Creer un lien" size="lg" @click="createLink.open()" />
-      </div>
+    <template #body>
+      <UPageGrid :class="selectedLink && 'grid-cols-2!'">
+        <UCard v-for="link in links" :key="link.id" variant="subtle" class="group">
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <UAvatar :src="useFavicon(link.targetUrl)" :alt="getCardTitle(link)" />
+              <div class="flex flex-col">
+                <span class="font-semibold truncate text-sm">
+                  {{ getCardTitle(link) }}
+                </span>
+                <span class="text-xs truncate text-muted">
+                  {{ formatDate(link.createdAt.toString()) }}
+                </span>
+              </div>
+            </div>
 
-      <div class="flex flex-col gap-4">
-        <div class="flex items-center justify-between">
-          <UInput
-            type="search"
-            icon="lucide:search"
-            placeholder="Rechercher un lien"
-            class="w-sm"
-          />
-          <div class="flex gap-2">
-            <UBadge label="Tous" color="neutral" variant="soft" class="rounded-full" size="lg" />
+            <UFieldGroup size="sm">
+              <UButton
+                icon="lucide:pencil"
+                variant="ghost"
+                color="neutral"
+                @click="selectedLink = link"
+              />
+              <UButton
+                icon="lucide:external-link"
+                variant="ghost"
+                color="neutral"
+                :to="link.targetUrl"
+                target="_blank"
+                :external="true"
+              />
+            </UFieldGroup>
           </div>
-        </div>
 
-        <UTable :data="links" :columns="columns" class="flex-1 border border-default rounded-lg" />
+          <div class="flex items-center justify-start gap-2 flex-wrap mt-3">
+            <UBadge v-if="link.domain" variant="subtle" color="primary" size="sm">
+              <UIcon name="lucide:globe" class="w-3 h-3 mr-1" />
+              {{ link.domain.label }}
+            </UBadge>
+            <UButton
+              v-if="link.slugCustom"
+              icon="lucide:copy"
+              variant="soft"
+              color="neutral"
+              size="sm"
+              @click="copyShortUrl(link, link.slugCustom)"
+            >
+              /{{ link.slugCustom }}
+            </UButton>
+            <UButton
+              icon="lucide:copy"
+              variant="soft"
+              color="neutral"
+              size="sm"
+              @click="copyShortUrl(link, link.slugAuto)"
+            >
+              /{{ link.slugAuto }}
+            </UButton>
+          </div>
+        </UCard>
+      </UPageGrid>
+    </template>
+  </UDashboardPanel>
+
+  <!-- Details Panel -->
+  <UDashboardPanel v-if="selectedLink" class="max-w-md">
+    <template #header>
+      <UDashboardNavbar :title="'Edit ' + getCardTitle(selectedLink)">
+        <template #right>
+          <UButton icon="lucide:x" variant="ghost" color="gray" @click="selectedLink = null" />
+        </template>
+      </UDashboardNavbar>
+    </template>
+
+    <template #body>
+      <UFormField label="Short URLs">
+        <div class="flex flex-wrap gap-2 justify-start items-center">
+          <UButton
+            v-if="selectedLink.slugCustom"
+            icon="lucide:copy"
+            variant="soft"
+            color="neutral"
+            size="sm"
+            @click="copyShortUrl(selectedLink, selectedLink.slugCustom)"
+          >
+            /{{ selectedLink.slugCustom }}
+          </UButton>
+          <UButton
+            icon="lucide:copy"
+            variant="soft"
+            color="neutral"
+            size="sm"
+            @click="copyShortUrl(selectedLink, selectedLink.slugAuto)"
+          >
+            /{{ selectedLink.slugAuto }}
+          </UButton>
+        </div>
+      </UFormField>
+
+      <USeparator label="Configuration" />
+
+      <UFormField label="Target link" required>
+        <UInput
+          v-model="selectedLink.targetUrl"
+          placeholder="https://example.com"
+          icon="lucide:link"
+        />
+      </UFormField>
+
+      <UFormField label="Label">
+        <UInput v-model="selectedLink.name" placeholder="My awesome link" icon="lucide:tag" />
+      </UFormField>
+
+      <UFormField label="Custom slug">
+        <UInput v-model="selectedLink.slugCustom" placeholder="custom-slug" icon="lucide:link-2" />
+      </UFormField>
+
+      <div class="flex gap-2 mt-4">
+        <UButton variant="soft" color="neutral" label="Cancel" @click="selectedLink = null" block />
+        <UButton label="Save changes" block />
       </div>
-    </div>
-  </div>
+
+      <USeparator />
+
+      <UButton variant="ghost" color="error" label="Delete link" icon="lucide:trash" block />
+    </template>
+  </UDashboardPanel>
 </template>
