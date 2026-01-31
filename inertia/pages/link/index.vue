@@ -32,7 +32,7 @@ const getCardTitle = (link: Link) => {
   }
 }
 
-const copyShortUrl = async (link: Link, slug: string) => {
+const copyShortUrl = async (link: Link) => {
   await copyToClipboard(link)
 }
 </script>
@@ -88,7 +88,7 @@ const copyShortUrl = async (link: Link, slug: string) => {
               variant="soft"
               color="neutral"
               size="sm"
-              @click="copyShortUrl(link, link.slugCustom)"
+              @click="copyShortUrl(link)"
             >
               /{{ link.slugCustom }}
             </UButton>
@@ -97,7 +97,7 @@ const copyShortUrl = async (link: Link, slug: string) => {
               variant="soft"
               color="neutral"
               size="sm"
-              @click="copyShortUrl(link, link.slugAuto)"
+              @click="copyShortUrl(link)"
             >
               /{{ link.slugAuto }}
             </UButton>
@@ -126,7 +126,7 @@ const copyShortUrl = async (link: Link, slug: string) => {
             variant="soft"
             color="neutral"
             size="sm"
-            @click="copyShortUrl(selectedLink, selectedLink.slugCustom)"
+            @click="copyShortUrl(selectedLink)"
           >
             /{{ selectedLink.slugCustom }}
           </UButton>
@@ -135,7 +135,7 @@ const copyShortUrl = async (link: Link, slug: string) => {
             variant="soft"
             color="neutral"
             size="sm"
-            @click="copyShortUrl(selectedLink, selectedLink.slugAuto)"
+            @click="copyShortUrl(selectedLink)"
           >
             /{{ selectedLink.slugAuto }}
           </UButton>
@@ -162,12 +162,19 @@ const copyShortUrl = async (link: Link, slug: string) => {
 
       <div class="flex gap-2 mt-4">
         <UButton variant="soft" color="neutral" label="Cancel" @click="selectedLink = null" block />
-        <UButton label="Save changes" block />
+        <UButton label="Save changes" @click="selectedLink = null" block />
       </div>
 
       <USeparator />
 
-      <UButton variant="ghost" color="error" label="Delete link" icon="lucide:trash" block />
+      <UButton
+        variant="ghost"
+        color="error"
+        label="Delete link"
+        icon="lucide:trash"
+        @click="selectedLink = null"
+        block
+      />
     </template>
   </UDashboardPanel>
 </template>

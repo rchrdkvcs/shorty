@@ -35,6 +35,7 @@ const copyField = async (field: string, value: string) => {
   }, 2000)
 }
 
+// selectedDomain will be used for future edit functionality
 const selectedDomain = ref<Domain | null>(null)
 
 const formatDate = (dateStr: string) => {

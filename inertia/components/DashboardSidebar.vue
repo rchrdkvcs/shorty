@@ -5,7 +5,7 @@ import { usePage } from '@inertiajs/vue3'
 import type User from '#models/user'
 import LinkAddModal from '~/components/LinkAddModal.vue'
 
-const navigationItems = ref<NavigationMenuItem>([
+const navigationItems = ref<NavigationMenuItem[]>([
   {
     label: 'Dashboard',
     icon: 'lucide:layout-dashboard',
