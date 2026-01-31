@@ -30,8 +30,7 @@ const UpdateOrganizationController = () =>
 const DeleteOrganizationController = () =>
   import('#controllers/organizations/delete_organization_controller')
 const IndexAnalyticsController = () => import('#controllers/analytics/index_analytics_controller')
-const IndexDashboardController = () =>
-  import('#controllers/dashboard/index_dashboard_controller')
+const IndexDashboardController = () => import('#controllers/dashboard/index_dashboard_controller')
 
 router.get('/login', [AuthLoginsController, 'render'])
 router.post('/login', [AuthLoginsController, 'execute'])

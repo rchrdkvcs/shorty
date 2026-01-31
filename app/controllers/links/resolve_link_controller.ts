@@ -34,6 +34,7 @@ export default class ResolveLinkController {
     const userAgent = request.header('user-agent') || ''
     const referrer = request.header('referer') || null
     const ipAddress = request.ip()
+    const device = MobileRedirectService.detectDevice(userAgent)
 
     // Track the click asynchronously
     this.analyticsService
@@ -42,14 +43,13 @@ export default class ResolveLinkController {
         referrer,
         userAgent,
         ipAddress,
-        device: MobileRedirectService.detectDevice(userAgent),
+        device,
       })
       .catch((error) => {
         console.error('Failed to record analytics:', error)
       })
 
     const targetUrl = LinkRedirectService.getTargetUrl(link)
-    const device = MobileRedirectService.detectDevice(userAgent)
 
     // For mobile devices, use smart redirect with deep links
     if (device !== 'desktop') {

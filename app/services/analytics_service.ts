@@ -20,8 +20,7 @@ export default class AnalyticsService {
     return Analytics.create(payload)
   }
 
-  public async getOverview(userId: string, days: number = 30) {
-    DateTime.now().minus({ days }).toSQL()
+  public async getOverview(userId: string, _days: number = 30) {
     const userLinks = await Link.query().where('userId', userId).select('id')
     const linkIds = userLinks.map((link) => link.id)
 
