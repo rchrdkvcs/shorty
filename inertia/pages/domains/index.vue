@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { Head } from '@inertiajs/vue3'
+import { useClipboard } from '@vueuse/core'
 
 interface Domain {
   id: string
@@ -24,163 +24,90 @@ interface Props {
 
 const props = defineProps<Props>()
 
-const showCreateModal = ref(false)
+const { copy } = useClipboard()
+const copiedField = ref<string | null>(null)
+
+const copyField = async (field: string, value: string) => {
+  await copy(value)
+  copiedField.value = field
+  setTimeout(() => {
+    copiedField.value = null
+  }, 2000)
+}
+
 const selectedDomain = ref<Domain | null>(null)
-const showEditModal = ref(false)
 
-const openCreateModal = () => {
-  showCreateModal.value = true
-}
-
-const openEditModal = (domain: Domain) => {
-  selectedDomain.value = domain
-  showEditModal.value = true
-}
-
-const deleteDomain = async (domainId: string) => {
-  if (!confirm('Êtes-vous sûr de vouloir supprimer ce domaine ?')) {
-    return
-  }
-
-  // TODO: Implémenter la suppression
-  console.log('Delete domain:', domainId)
-}
-
-const toggleDomainStatus = async (domainId: string) => {
-  // TODO: Implémenter le toggle du statut
-  console.log('Toggle domain status:', domainId)
+const formatDate = (dateStr: string) => {
+  if (!dateStr) return ''
+  return new Date(dateStr).toLocaleDateString('fr-FR', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  })
 }
 </script>
 
 <template>
-  <Head title="Gestion des domaines" />
+  <UDashboardPanel>
+    <template #header>
+      <UDashboardNavbar title="My Domains">
+        <template #right>
+          <UButton icon="lucide:plus" label="Add Domain" />
+        </template>
+      </UDashboardNavbar>
+    </template>
 
-  <div class="p-6">
-    <div class="flex justify-between items-center mb-6">
-      <div>
-        <h1 class="text-2xl font-bold text-gray-900">Gestion des domaines</h1>
-        <p class="text-gray-600 mt-1">Gérez vos domaines personnalisés pour les liens raccourcis</p>
+    <template #body>
+      <!-- Empty State -->
+      <div v-if="!domains?.length" class="text-center text-muted py-12">
+        <UIcon name="lucide:globe" class="w-12 h-12 mx-auto mb-4 opacity-50" />
+        <p class="text-lg font-medium">No domains added yet</p>
+        <p class="text-sm mb-4">Add a custom domain to use with your shortened links</p>
+        <UButton icon="lucide:plus" label="Add Domain" />
       </div>
 
-      <UButton icon="lucide:plus" @click="openCreateModal" class="bg-blue-600 hover:bg-blue-700">
-        Ajouter un domaine
-      </UButton>
-    </div>
+      <!-- Domains List -->
+      <UPageGrid v-else>
+        <UCard v-for="domain in domains" :key="domain.id" variant="subtle">
+          <div class="flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0 flex-1">
+              <div
+                class="rounded-md bg-primary/10 shrink-0 flex items-center justify-center p-2"
+              >
+                <UIcon name="lucide:globe" class="size-5 text-primary" />
+              </div>
+              <div class="min-w-0 flex-1">
+                <p class="font-semibold truncate">{{ domain.label }}</p>
+                <p class="text-sm text-muted truncate">{{ domain.description || 'No description' }}</p>
+              </div>
+            </div>
+            <div class="flex gap-1">
+              <UButton
+                icon="lucide:settings"
+                variant="ghost"
+                color="neutral"
+                size="sm"
+                @click="selectedDomain = domain"
+              />
+            </div>
+          </div>
 
-    <!-- Liste des domaines -->
-    <div class="bg-white rounded-lg shadow overflow-hidden">
-      <div v-if="domains.length === 0" class="p-8 text-center">
-        <UIcon name="lucide:globe" class="mx-auto h-12 w-12 text-gray-400 mb-4" />
-        <h3 class="text-lg font-medium text-gray-900 mb-2">Aucun domaine</h3>
-        <p class="text-gray-500 mb-4">Ajoutez votre premier domaine personnalisé pour commencer.</p>
-        <UButton @click="openCreateModal" icon="lucide:plus"> Ajouter un domaine </UButton>
-      </div>
+          <USeparator class="my-3" />
 
-      <div v-else>
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-              <tr>
-                <th
-                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Domaine
-                </th>
-                <th
-                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Organisation
-                </th>
-                <th
-                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Statut
-                </th>
-                <th
-                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Date de création
-                </th>
-                <th
-                  class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="domain in domains" :key="domain.id" class="hover:bg-gray-50">
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div>
-                    <div class="text-sm font-medium text-gray-900">
-                      {{ domain.name }}
-                    </div>
-                    <div class="text-sm text-gray-500">
-                      {{ domain.label }}
-                    </div>
-                    <div v-if="domain.description" class="text-xs text-gray-400 mt-1">
-                      {{ domain.description }}
-                    </div>
-                  </div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="text-sm text-gray-900">
-                    {{ domain.organization?.name || 'N/A' }}
-                  </div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <UBadge :color="domain.isActive ? 'green' : 'red'" variant="subtle">
-                    {{ domain.isActive ? 'Actif' : 'Inactif' }}
-                  </UBadge>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {{ new Date(domain.createdAt).toLocaleDateString('fr-FR') }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <div class="flex justify-end space-x-2">
-                    <UButton
-                      size="xs"
-                      variant="ghost"
-                      icon="lucide:eye"
-                      :to="`/dashboard/domains/${domain.id}`"
-                    >
-                      Voir
-                    </UButton>
-                    <UButton
-                      size="xs"
-                      variant="ghost"
-                      icon="lucide:edit"
-                      @click="openEditModal(domain)"
-                    >
-                      Modifier
-                    </UButton>
-                    <UButton
-                      size="xs"
-                      variant="ghost"
-                      :icon="domain.isActive ? 'lucide:pause' : 'lucide:play'"
-                      @click="toggleDomainStatus(domain.id)"
-                    >
-                      {{ domain.isActive ? 'Désactiver' : 'Activer' }}
-                    </UButton>
-                    <UButton
-                      size="xs"
-                      variant="ghost"
-                      icon="lucide:trash-2"
-                      color="red"
-                      @click="deleteDomain(domain.id)"
-                    >
-                      Supprimer
-                    </UButton>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modals -->
-  <!-- TODO: Implémenter les modals de création et d'édition -->
+          <div class="space-y-2 text-sm">
+            <div class="flex justify-between items-center">
+              <span class="text-muted">Status</span>
+              <UBadge :color="domain.isActive ? 'success' : 'neutral'" variant="subtle" size="sm">
+                {{ domain.isActive ? 'Active' : 'Inactive' }}
+              </UBadge>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-muted">Created</span>
+              <span>{{ formatDate(domain.createdAt) }}</span>
+            </div>
+          </div>
+        </UCard>
+      </UPageGrid>
+    </template>
+  </UDashboardPanel>
 </template>

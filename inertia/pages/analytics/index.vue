@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import type { BreadcrumbItem } from '@nuxt/ui'
 import { useFavicon } from '~/composables/use_favicon'
 
 interface Analytics {
@@ -38,16 +37,6 @@ interface Analytics {
 }
 
 const props = defineProps<Analytics>()
-
-const breadcrumbItems = ref<BreadcrumbItem[]>([
-  {
-    label: 'Dashboard',
-  },
-  {
-    label: 'Analytics',
-    to: '/dashboard/analytics',
-  },
-])
 
 const stats = computed(() => [
   {
@@ -94,38 +83,31 @@ const getHostname = (url: string) => {
 </script>
 
 <template>
-  <div>
-    <div class="h-16 w-full p-4 border-b border-default flex items-center gap-2">
-      <UButton color="neutral" variant="ghost" icon="lucide:panel-left" />
-      <UBreadcrumb :items="breadcrumbItems" />
-    </div>
+  <UDashboardPanel>
+    <template #header>
+      <UDashboardNavbar title="Analytics" />
+    </template>
 
-    <div class="flex flex-col gap-8 p-8">
-      <div class="flex items-center justify-between">
-        <div>
-          <h1 class="text-3xl font-semibold">Analytics</h1>
-          <p class="text-muted">Suivez les performances de vos liens raccourcis</p>
+    <template #body>
+      <div class="space-y-6">
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <UCard v-for="stat in stats" :key="stat.label" variant="subtle">
+            <div class="flex items-center gap-3">
+              <div
+                class="rounded-md bg-primary/10 shrink-0 flex items-center justify-center p-2"
+              >
+                <UIcon :name="stat.icon" class="size-6 text-primary" />
+              </div>
+              <div>
+                <p class="text-2xl font-bold">
+                  {{ stat.value.toLocaleString() }}
+                </p>
+                <p class="text-sm text-muted">{{ stat.label }}</p>
+              </div>
+            </div>
+          </UCard>
         </div>
-      </div>
-
-      <!-- Stats Cards -->
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <UCard v-for="stat in stats" :key="stat.label" variant="subtle">
-          <div class="flex items-center gap-3">
-            <div
-              class="rounded-md bg-primary/10 shrink-0 flex items-center justify-center p-2"
-            >
-              <UIcon :name="stat.icon" class="size-6 text-primary" />
-            </div>
-            <div>
-              <p class="text-2xl font-bold">
-                {{ stat.value.toLocaleString() }}
-              </p>
-              <p class="text-sm text-muted">{{ stat.label }}</p>
-            </div>
-          </div>
-        </UCard>
-      </div>
 
       <!-- Chart Section -->
       <UCard variant="subtle">
@@ -293,6 +275,6 @@ const getHostname = (url: string) => {
           </div>
         </UCard>
       </div>
-    </div>
-  </div>
+    </template>
+  </UDashboardPanel>
 </template>
