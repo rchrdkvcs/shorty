@@ -29,6 +29,8 @@ const UpdateOrganizationController = () =>
   import('#controllers/organizations/update_organization_controller')
 const DeleteOrganizationController = () =>
   import('#controllers/organizations/delete_organization_controller')
+const IndexAnalyticsController = () => import('#controllers/analytics/index_analytics_controller')
+const IndexDashboardController = () => import('#controllers/dashboard/index_dashboard_controller')
 
 router.get('/login', [AuthLoginsController, 'render'])
 router.post('/login', [AuthLoginsController, 'execute'])
@@ -37,15 +39,17 @@ router.get('/register', [AuthRegistersController, 'render'])
 router.post('/register', [AuthRegistersController, 'execute'])
 
 router.get('/', ({ response }) => {
-  return response.redirect('/dashboard/links')
+  return response.redirect('/dashboard')
 })
 
 router
   .group(() => {
+    router.get('/dashboard', [IndexDashboardController, 'handle'])
     router.get('/dashboard/links', [IndexLinkController, 'render'])
     router.get('/dashboard/organizations', [IndexOrganizationController, 'render'])
     router.get('/dashboard/domains', [IndexDomainController, 'index'])
     router.get('/dashboard/domains/:id', [ShowDomainController, 'show'])
+    router.get('/dashboard/analytics', [IndexAnalyticsController, 'handle'])
 
     router.post('/links', [StoreLinkController, 'execute'])
     router.patch('/links/:id', [UpdateLinkController, 'execute'])
