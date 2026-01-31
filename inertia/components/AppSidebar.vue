@@ -15,6 +15,11 @@ const navigationItems = ref<NavigationMenuItem[]>([
       class: 'text-muted',
     },
     {
+      label: 'Dashboard',
+      icon: 'lucide:layout-dashboard',
+      to: '/dashboard',
+    },
+    {
       label: 'Liens',
       icon: 'lucide:link',
       to: '/dashboard/links',

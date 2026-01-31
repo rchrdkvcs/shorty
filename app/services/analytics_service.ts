@@ -115,7 +115,7 @@ export default class AnalyticsService {
       return {
         linkId: row.link_id,
         clicks: Number(row.clicks),
-        label: link?.label,
+        label: link?.name,
         slugAuto: link?.slugAuto,
         slugCustom: link?.slugCustom,
         targetUrl: link?.targetUrl,
@@ -271,7 +271,7 @@ export default class AnalyticsService {
     return {
       link: {
         id: link.id,
-        label: link.label,
+        label: link.name,
         slugAuto: link.slugAuto,
         slugCustom: link.slugCustom,
         targetUrl: link.targetUrl,
