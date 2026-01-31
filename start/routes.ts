@@ -29,6 +29,7 @@ const UpdateOrganizationController = () =>
   import('#controllers/organizations/update_organization_controller')
 const DeleteOrganizationController = () =>
   import('#controllers/organizations/delete_organization_controller')
+const IndexAnalyticsController = () => import('#controllers/analytics/index_analytics_controller')
 
 router.get('/login', [AuthLoginsController, 'render'])
 router.post('/login', [AuthLoginsController, 'execute'])
@@ -46,6 +47,7 @@ router
     router.get('/dashboard/organizations', [IndexOrganizationController, 'render'])
     router.get('/dashboard/domains', [IndexDomainController, 'index'])
     router.get('/dashboard/domains/:id', [ShowDomainController, 'show'])
+    router.get('/dashboard/analytics', [IndexAnalyticsController, 'handle'])
 
     router.post('/links', [StoreLinkController, 'execute'])
     router.patch('/links/:id', [UpdateLinkController, 'execute'])
