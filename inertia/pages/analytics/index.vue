@@ -275,6 +275,7 @@ const getHostname = (url: string) => {
           </div>
         </UCard>
       </div>
+      </div>
     </template>
   </UDashboardPanel>
 </template>

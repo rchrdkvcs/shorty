@@ -6,16 +6,17 @@ export default class BaseAuthController {
     return response.redirect('/')
   }
 
-  protected handleAuthError({ response }: HttpContext, message: string, statusCode: number = 400) {
-    return response.status(statusCode).send({ error: message })
+  protected handleAuthError({ session, response }: HttpContext, message: string) {
+    session.flashErrors({ form: message })
+    return response.redirect().back()
   }
 
   protected handleLoginError(ctx: HttpContext) {
-    return this.handleAuthError(ctx, AUTH_MESSAGES.INVALID_CREDENTIALS, 401)
+    return this.handleAuthError(ctx, AUTH_MESSAGES.INVALID_CREDENTIALS)
   }
 
   protected handleRegistrationError(ctx: HttpContext) {
-    return this.handleAuthError(ctx, AUTH_MESSAGES.REGISTRATION_FAILED, 400)
+    return this.handleAuthError(ctx, AUTH_MESSAGES.REGISTRATION_FAILED)
   }
 
   protected async authenticateUser({ auth }: HttpContext, user: any) {

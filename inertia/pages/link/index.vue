@@ -54,7 +54,7 @@ const copyShortUrl = async (link: Link) => {
                   {{ getCardTitle(link) }}
                 </span>
                 <span class="text-xs truncate text-muted">
-                  {{ formatDate(link.createdAt.toString()) }}
+                  {{ formatDate(link.createdAt?.toString() ?? '') }}
                 </span>
               </div>
             </div>
