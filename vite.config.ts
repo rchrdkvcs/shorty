@@ -11,13 +11,16 @@ export default defineConfig({
     vue(),
     adonisjs({ entrypoints: ['inertia/app/app.ts'], reload: ['resources/views/**/*.edge'] }),
     ui({
-      inertia: true,
-      colorMode: false,
+      router: 'inertia',
       ui: {
         button: {
           slots: {
             base: 'cursor-pointer',
           },
+        },
+        colors: {
+          primary: 'green',
+          neutral: 'stone',
         },
       },
     }),

@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import type { BreadcrumbItem, TableColumn } from '@nuxt/ui'
 import type Organization from '#models/organization'
-import { ref } from 'vue'
-import { h, resolveComponent } from 'vue'
+import { h, resolveComponent, ref } from 'vue'
 import { router } from '@inertiajs/vue3'
 import OrganizationAddModal from '~/components/OrganizationAddModal.vue'
 import OrganizationEditModal from '~/components/OrganizationEditModal.vue'
@@ -135,28 +134,12 @@ function getRowItems(row: any) {
 </script>
 
 <template>
-  <div>
-    <div class="h-16 w-full p-4 border-b border-default flex items-center gap-2">
-      <UButton color="neutral" variant="ghost" icon="lucide:panel-left" />
-      <UBreadcrumb :items="breadcrumbItems" class="" />
-    </div>
+  <UDashboardPanel id="inbox-1">
+    <template #header>
+      <UDashboardNavbar>
+        <template #left></template>
 
-    <div class="flex flex-col gap-8 p-8">
-      <div class="flex items-center justify-between">
-        <div>
-          <h1 class="text-3xl font-semibold">Organisations</h1>
-          <p class="text-muted">Gérez vos organisations et leurs paramètres</p>
-        </div>
-        <UButton
-          icon="lucide:plus"
-          label="Créer une organisation"
-          size="lg"
-          @click="createOrganization.open()"
-        />
-      </div>
-
-      <div class="flex flex-col gap-4">
-        <div class="flex items-center justify-between">
+        <template #right>
           <UInput
             type="search"
             icon="lucide:search"
@@ -166,14 +149,27 @@ function getRowItems(row: any) {
           <div class="flex gap-2">
             <UBadge label="Toutes" color="neutral" variant="soft" class="rounded-full" size="lg" />
           </div>
-        </div>
+          <UButton
+            icon="lucide:plus"
+            label="Créer une organisation"
+            size="lg"
+            @click="createOrganization.open()"
+          />
+        </template>
+      </UDashboardNavbar>
+    </template>
 
-        <UTable
-          :data="organizations"
-          :columns="columns"
-          class="flex-1 border border-default rounded-lg"
-        />
+    <template #body>
+      <div>
+        <h1 class="text-3xl font-semibold">Organisations</h1>
+        <p class="text-muted">Gérez vos organisations et leurs paramètres</p>
       </div>
-    </div>
-  </div>
+
+      <UTable
+        :data="organizations"
+        :columns="columns"
+        class="flex-1 border border-default rounded-lg"
+      />
+    </template>
+  </UDashboardPanel>
 </template>

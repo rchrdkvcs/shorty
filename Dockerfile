@@ -1,34 +1,24 @@
-FROM node:latest AS base
-
-# Install bun
+FROM node:24-alpine AS base
 WORKDIR /app
-RUN npm install -g bun@latest
 
-# All deps stage
 FROM base AS deps
-WORKDIR /app
-ADD package.json ./
-RUN bun install
+RUN npm install -g pnpm@latest
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install
 
-# Production only deps stage
 FROM base AS production-deps
-WORKDIR /app
-ADD package.json ./
-RUN bun install --production
+RUN npm install -g pnpm@latest
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --prod
 
-# Build stage
 FROM base AS build
-WORKDIR /app
 COPY --from=deps /app/node_modules /app/node_modules
-ADD . .
+COPY . .
 RUN node ace build --ignore-ts-errors
 
-# Production stage
-FROM base
-WORKDIR /app
-
+FROM base AS production
 COPY --from=production-deps /app/node_modules /app/node_modules
 COPY --from=build /app/build /app
 
-EXPOSE 3000
+EXPOSE 80
 CMD ["node", "./bin/server.js"]
