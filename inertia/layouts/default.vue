@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import AppSidebar from '~/components/AppSidebar.vue'
+import DashboardSidebar from '~/components/DashboardSidebar.vue'
 </script>
 
 <template>
   <UApp>
-    <UDashboardGroup>
-      <AppSidebar />
-
-      <slot />
-    </UDashboardGroup>
+    <div class="grid grid-cols-[256px_1fr] h-screen bg-default">
+      <DashboardSidebar />
+      <main class="size-full overflow-x-scroll">
+        <slot />
+      </main>
+    </div>
   </UApp>
 </template>

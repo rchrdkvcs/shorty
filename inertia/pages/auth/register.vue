@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
-import { router } from '@inertiajs/vue3'
+import { reactive, ref, computed } from 'vue'
+import { router, usePage } from '@inertiajs/vue3'
 import Empty from '~/layouts/empty.vue'
 
 defineOptions({
   layout: Empty,
 })
+
+const page = usePage()
+const errors = computed(() => (page.props.errors as Record<string, string>) || {})
 
 const showPassword = ref(false)
 
@@ -38,6 +41,14 @@ function submit() {
       </div>
 
       <USeparator label="Ou" />
+
+      <UAlert
+        v-if="errors.form"
+        color="error"
+        variant="soft"
+        :title="errors.form"
+        icon="lucide:alert-circle"
+      />
 
       <form @submit.prevent="submit" class="flex flex-col gap-4 w-full">
         <UFormField label="Nom d'utilisateur" required>

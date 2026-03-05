@@ -133,17 +133,16 @@ const resetForm = () => {
         </UFormField>
 
         <UFormField label="Slug personnalisé" hint="Optionnel">
-          <UButtonGroup class="w-full">
-            <UBadge color="neutral" variant="outline" size="lg" :label="domain + '/'" />
-            <UInput
-              color="neutral"
-              variant="outline"
-              placeholder="mon-super-lien"
-              class="w-full"
-              size="lg"
-              v-model="form.slugCustom"
-            />
-          </UButtonGroup>
+          <UInput
+            placeholder="mon-super-lien"
+            class="w-full"
+            size="lg"
+            v-model="form.slugCustom"
+          >
+            <template #leading>
+              <span class="text-muted text-sm">{{ domain }}/</span>
+            </template>
+          </UInput>
         </UFormField>
 
         <UFormField label="Catégorie" hint="Optionnel">

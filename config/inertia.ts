@@ -13,6 +13,7 @@ const inertiaConfig = defineConfig({
    * Data that should be shared with all rendered pages
    */
   sharedData: {
+    errors: (ctx) => ctx.inertia.always(() => ctx.session.flashMessages.get('errorsBag') || {}),
     user: (ctx) => ctx.inertia.always(() => ctx.auth.user),
     organizations: (ctx) => {
       return ctx.inertia.lazy(async () => {

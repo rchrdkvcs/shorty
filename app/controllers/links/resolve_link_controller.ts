@@ -1,10 +1,15 @@
 import type { HttpContext } from '@adonisjs/core/http'
+import { inject } from '@adonisjs/core'
 import LinkRedirectService from '#services/link_redirect_service'
 import MobileRedirectService from '#services/mobile_redirect_service'
+import AnalyticsService from '#services/analytics_service'
 import Link from '#models/link'
 import Domain from '#models/domain'
 
+@inject()
 export default class ResolveLinkController {
+  constructor(protected analyticsService: AnalyticsService) {}
+
   async execute({ params, request, response }: HttpContext) {
     const host = request.hostname()
     const slug = params.slug
@@ -25,9 +30,26 @@ export default class ResolveLinkController {
       return response.status(404).send('Lien introuvable')
     }
 
-    const targetUrl = LinkRedirectService.getTargetUrl(link)
+    // Record analytics
     const userAgent = request.header('user-agent') || ''
+    const referrer = request.header('referer') || null
+    const ipAddress = request.ip()
     const device = MobileRedirectService.detectDevice(userAgent)
+
+    // Track the click asynchronously
+    this.analyticsService
+      .recordClick({
+        linkId: link.id,
+        referrer,
+        userAgent,
+        ipAddress,
+        device,
+      })
+      .catch((error) => {
+        console.error('Failed to record analytics:', error)
+      })
+
+    const targetUrl = LinkRedirectService.getTargetUrl(link)
 
     // For mobile devices, use smart redirect with deep links
     if (device !== 'desktop') {
