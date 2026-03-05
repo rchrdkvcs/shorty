@@ -1,5 +1,5 @@
 import { createApp, DefineComponent, h } from 'vue'
-import '../css/app.css'
+import './css/app.css'
 import { createInertiaApp } from '@inertiajs/vue3'
 import { resolvePageComponent } from '@adonisjs/inertia/helpers'
 import Default from '~/layouts/default.vue'
@@ -12,8 +12,8 @@ createInertiaApp({
 
   resolve: (name) => {
     return resolvePageComponent(
-      `../pages/${name}.vue`,
-      import.meta.glob<DefineComponent>('../pages/**/*.vue')
+      `./pages/${name}.vue`,
+      import.meta.glob<DefineComponent>('./pages/**/*.vue')
     ).then((page) => {
       if (!page.default.layout) {
         page.default.layout = Default

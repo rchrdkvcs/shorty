@@ -7,7 +7,7 @@ export default class BaseAuthController {
   }
 
   protected handleAuthError({ session, response }: HttpContext, message: string) {
-    session.flashErrors({ form: message })
+    session.flash('inputErrorsBag', { form: message })
     return response.redirect().back()
   }
 

@@ -4,7 +4,7 @@ import BaseAuthController from '#controllers/auth/base_auth_controller'
 
 export default class AuthLoginsController extends BaseAuthController {
   async render({ inertia }: HttpContext) {
-    return inertia.render('auth/login')
+    return inertia.render('auth/login', {})
   }
 
   async execute(ctx: HttpContext) {

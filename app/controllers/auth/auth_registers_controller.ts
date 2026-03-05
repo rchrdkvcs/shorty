@@ -5,7 +5,7 @@ import BaseAuthController from '#controllers/auth/base_auth_controller'
 
 export default class AuthRegistersController extends BaseAuthController {
   render({ inertia }: HttpContext) {
-    return inertia.render('auth/register')
+    return inertia.render('auth/register', {})
   }
 
   async execute(ctx: HttpContext) {
@@ -30,7 +30,13 @@ export default class AuthRegistersController extends BaseAuthController {
 
       await this.authenticateUser(ctx, user)
       return this.handleAuthSuccess(ctx)
-    } catch (error) {
+    } catch (error: any) {
+      if (error.code === '23505') {
+        const field = error.constraint?.includes('email') ? 'email' : 'username'
+        ctx.session.flash('inputErrorsBag', { [field]: `This ${field} is already taken` })
+        return ctx.response.redirect().back()
+      }
+      ctx.logger.error({ err: error }, 'Registration failed')
       return this.handleRegistrationError(ctx)
     }
   }

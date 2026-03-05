@@ -21,7 +21,7 @@ export default class StoreDomainController {
     const organization = await Organization.query()
       .where('id', data.organizationId)
       .whereHas('users', (userQuery) => {
-        userQuery.where('user_id', user.id)
+        userQuery.where('id', user.id)
       })
       .first()
 

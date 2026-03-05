@@ -9,34 +9,13 @@
 
 import router from '@adonisjs/core/services/router'
 import { middleware } from '#start/kernel'
+import { controllers } from '#generated/controllers'
 
-const StoreLinkController = () => import('#controllers/links/store_link_controller')
-const IndexLinkController = () => import('#controllers/links/index_link_controller')
-const UpdateLinkController = () => import('#controllers/links/update_link_controller')
-const StoreDomainController = () => import('#controllers/domains/store_domain_controller')
-const IndexDomainController = () => import('#controllers/domains/index_domain_controller')
-const ShowDomainController = () => import('#controllers/domains/show_domain_controller')
-const UpdateDomainController = () => import('#controllers/domains/update_domain_controller')
-const DeleteDomainController = () => import('#controllers/domains/delete_domain_controller')
-const ResolveLinkController = () => import('#controllers/links/resolve_link_controller')
-const AuthLoginsController = () => import('#controllers/auth/auth_logins_controller')
-const AuthRegistersController = () => import('#controllers/auth/auth_registers_controller')
-const IndexOrganizationController = () =>
-  import('#controllers/organizations/index_organization_controller')
-const StoreOrganizationController = () =>
-  import('#controllers/organizations/store_organization_controller')
-const UpdateOrganizationController = () =>
-  import('#controllers/organizations/update_organization_controller')
-const DeleteOrganizationController = () =>
-  import('#controllers/organizations/delete_organization_controller')
-const IndexAnalyticsController = () => import('#controllers/analytics/index_analytics_controller')
-const IndexDashboardController = () => import('#controllers/dashboard/index_dashboard_controller')
+router.get('/login', [controllers.auth.AuthLogins, 'render'])
+router.post('/login', [controllers.auth.AuthLogins, 'execute'])
 
-router.get('/login', [AuthLoginsController, 'render'])
-router.post('/login', [AuthLoginsController, 'execute'])
-
-router.get('/register', [AuthRegistersController, 'render'])
-router.post('/register', [AuthRegistersController, 'execute'])
+router.get('/register', [controllers.auth.AuthRegisters, 'render'])
+router.post('/register', [controllers.auth.AuthRegisters, 'execute'])
 
 router.get('/', ({ response }) => {
   return response.redirect('/dashboard')
@@ -44,24 +23,24 @@ router.get('/', ({ response }) => {
 
 router
   .group(() => {
-    router.get('/dashboard', [IndexDashboardController, 'handle'])
-    router.get('/dashboard/links', [IndexLinkController, 'render'])
-    router.get('/dashboard/organizations', [IndexOrganizationController, 'render'])
-    router.get('/dashboard/domains', [IndexDomainController, 'index'])
-    router.get('/dashboard/domains/:id', [ShowDomainController, 'show'])
-    router.get('/dashboard/analytics', [IndexAnalyticsController, 'handle'])
+    router.get('/dashboard', [controllers.dashboard.IndexDashboard, 'handle'])
+    router.get('/dashboard/links', [controllers.links.IndexLink, 'render'])
+    router.get('/dashboard/organizations', [controllers.organizations.IndexOrganization, 'render'])
+    router.get('/dashboard/domains', [controllers.domains.IndexDomain, 'index'])
+    router.get('/dashboard/domains/:id', [controllers.domains.ShowDomain, 'show'])
+    router.get('/dashboard/analytics', [controllers.analytics.IndexAnalytics, 'handle'])
 
-    router.post('/links', [StoreLinkController, 'execute'])
-    router.patch('/links/:id', [UpdateLinkController, 'execute'])
+    router.post('/links', [controllers.links.StoreLink, 'execute'])
+    router.patch('/links/:id', [controllers.links.UpdateLink, 'execute'])
 
-    router.post('/domains', [StoreDomainController, 'store'])
-    router.patch('/domains/:id', [UpdateDomainController, 'update'])
-    router.delete('/domains/:id', [DeleteDomainController, 'delete'])
+    router.post('/domains', [controllers.domains.StoreDomain, 'store'])
+    router.patch('/domains/:id', [controllers.domains.UpdateDomain, 'update'])
+    router.delete('/domains/:id', [controllers.domains.DeleteDomain, 'delete'])
 
-    router.post('/organizations', [StoreOrganizationController, 'execute'])
-    router.patch('/organizations/:id', [UpdateOrganizationController, 'execute'])
-    router.delete('/organizations/:id', [DeleteOrganizationController, 'execute'])
+    router.post('/organizations', [controllers.organizations.StoreOrganization, 'execute'])
+    router.patch('/organizations/:id', [controllers.organizations.UpdateOrganization, 'execute'])
+    router.delete('/organizations/:id', [controllers.organizations.DeleteOrganization, 'execute'])
   })
   .use(middleware.auth())
 
-router.get('/:slug', [ResolveLinkController, 'execute'])
+router.get('/:slug', [controllers.links.ResolveLink, 'execute']).as('links.resolve')

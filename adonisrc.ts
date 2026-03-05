@@ -1,4 +1,7 @@
+import { indexEntities } from '@adonisjs/core'
+import { indexPages } from '@adonisjs/inertia'
 import { defineConfig } from '@adonisjs/core/app'
+import { generateRegistry } from '@tuyau/core/hooks'
 
 export default defineConfig({
   /*
@@ -77,12 +80,12 @@ export default defineConfig({
   tests: {
     suites: [
       {
-        files: ['tests/unit/**/*.spec(.ts|.js)'],
+        files: ['tests/unit/**/*.spec.{ts,js}'],
         name: 'unit',
         timeout: 2000,
       },
       {
-        files: ['tests/functional/**/*.spec(.ts|.js)'],
+        files: ['tests/unit/**/*.spec.{ts,js}'],
         name: 'functional',
         timeout: 30000,
       },
@@ -110,8 +113,15 @@ export default defineConfig({
     },
   ],
 
-  assetsBundler: false,
   hooks: {
-    onBuildStarting: [() => import('@adonisjs/vite/build_hook')],
+    init: [
+      indexEntities(),
+      indexPages({ framework: 'vue3' }),
+      generateRegistry(),
+      indexEntities({
+        transformers: { enabled: true, withSharedProps: true },
+      }),
+    ],
+    buildStarting: [() => import('@adonisjs/vite/build_hook')],
   },
 })

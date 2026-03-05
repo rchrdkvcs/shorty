@@ -35,7 +35,7 @@ export default class IndexLinkController {
       .where('organization_id', organizationId)
       .whereHas('organization', (orgQuery) => {
         orgQuery.whereHas('users', (userQuery) => {
-          userQuery.where('user_id', user.id)
+          userQuery.where('id', user.id)
         })
       })
 

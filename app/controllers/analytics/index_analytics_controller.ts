@@ -7,7 +7,7 @@ export default class IndexAnalyticsController {
   constructor(protected analyticsService: AnalyticsService) {}
 
   public async handle({ auth, request, inertia }: HttpContext) {
-    const user = auth.getUserOrFail()
+    const user = auth.user!
     const days = Number(request.input('days', 30))
     const overview = await this.analyticsService.getOverview(user.id, days)
     const clicksByPeriod = await this.analyticsService.getClicksByPeriod(user.id, days)

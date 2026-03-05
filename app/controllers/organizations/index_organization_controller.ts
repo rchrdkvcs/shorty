@@ -7,7 +7,7 @@ export default class IndexOrganizationController {
 
     const organizations = await Organization.query()
       .whereHas('users', (userQuery) => {
-        userQuery.where('user_id', user.id)
+        userQuery.where('id', user.id)
       })
       .preload('domains')
       .preload('users')

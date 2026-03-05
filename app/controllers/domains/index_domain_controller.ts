@@ -4,7 +4,7 @@ import DomainService from '#services/domain_service'
 export default class IndexDomainController {
   async index({ auth, request, inertia }: HttpContext) {
     const user = auth.user!
-    const organizationId = request.param('organizationId')
+    const organizationId = request.input('organizationId')
 
     if (organizationId) {
       const domains = await DomainService.getOrganizationDomains(organizationId)

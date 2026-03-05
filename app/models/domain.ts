@@ -1,43 +1,19 @@
-import { DateTime } from 'luxon'
-import { BaseModel, beforeCreate, column, belongsTo, hasMany } from '@adonisjs/lucid/orm'
-import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
+import { DomainSchema } from '#database/schema'
+import { beforeCreate, belongsTo, hasMany } from '@adonisjs/lucid/orm'
 import { ulid } from 'ulid'
-import Link from '#models/link'
+import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
 import Organization from '#models/organization'
+import Link from '#models/link'
 
-export default class Domain extends BaseModel {
-  @column({ isPrimary: true })
-  declare id: string
-
+export default class Domain extends DomainSchema {
   @beforeCreate()
-  static generateId(user: Domain) {
-    user.id = ulid()
+  static generateId(domain: Domain) {
+    domain.id = ulid()
   }
-
-  @column()
-  declare name: string
-
-  @column()
-  declare description: string | null
-
-  @column()
-  declare label: string
-
-  @column()
-  declare isActive: boolean
-
-  @column()
-  declare organizationId: string
 
   @belongsTo(() => Organization)
   declare organization: BelongsTo<typeof Organization>
 
   @hasMany(() => Link)
   declare links: HasMany<typeof Link>
-
-  @column.dateTime({ autoCreate: true })
-  declare createdAt: DateTime
-
-  @column.dateTime({ autoCreate: true, autoUpdate: true })
-  declare updatedAt: DateTime
 }

@@ -34,7 +34,7 @@ export default class DomainService {
     const domains = await Domain.query()
       .whereHas('organization', (orgQuery) => {
         orgQuery.whereHas('users', (userQuery) => {
-          userQuery.where('user_id', userId)
+          userQuery.where('id', userId)
         })
       })
       .where('is_active', true)
@@ -65,7 +65,7 @@ export default class DomainService {
       .where('id', domainId)
       .whereHas('organization', (orgQuery) => {
         orgQuery.whereHas('users', (userQuery) => {
-          userQuery.where('user_id', userId)
+          userQuery.where('id', userId)
         })
       })
       .first()

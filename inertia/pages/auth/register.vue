@@ -51,7 +51,7 @@ function submit() {
       />
 
       <form @submit.prevent="submit" class="flex flex-col gap-4 w-full">
-        <UFormField label="Nom d'utilisateur" required>
+        <UFormField label="Nom d'utilisateur" required :error="errors.username">
           <UInput
             placeholder="Entrez votre nom d'utilisateur"
             class="w-full"
@@ -60,7 +60,7 @@ function submit() {
           />
         </UFormField>
 
-        <UFormField label="E-mail" required>
+        <UFormField label="E-mail" required :error="errors.email">
           <UInput placeholder="Entrez votre e-mail" class="w-full" v-model="form.email" size="lg" />
         </UFormField>
 
